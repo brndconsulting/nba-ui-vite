@@ -11,6 +11,7 @@ import Home from '@/pages/Home';
 import Matchup from '@/pages/Matchup';
 import { Waiver } from '@/pages/Waiver';
 import ThemeMatrix from '@/pages/ThemeMatrix';
+import Settings from '@/pages/Settings';
 import { Header } from '@/components/Header';
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/matchup" component={Matchup} />
         <Route path="/waiver" component={Waiver} />
+        <Route path="/settings" component={Settings} />
         <Route path="/__theme-matrix" component={ThemeMatrix} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}

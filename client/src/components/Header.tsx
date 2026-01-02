@@ -53,6 +53,12 @@ export function Header() {
                   Insider
                 </Link>
               </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/settings" className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                  Settings
+                </Link>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
