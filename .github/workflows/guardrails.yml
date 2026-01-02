@@ -1,0 +1,45 @@
+name: Guardrails Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  guardrails:
+    name: Sport Insider Non-Negotiables
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Run guardrails check
+        run: |
+          chmod +x scripts/guardrails_check.sh
+          ./scripts/guardrails_check.sh
+      
+      - name: Lint check
+        run: |
+          npm install -g pnpm
+          pnpm install --frozen-lockfile
+          pnpm lint
+        continue-on-error: false
+      
+      - name: Build check
+        run: |
+          pnpm build
+        continue-on-error: false
+      
+      - name: Report status
+        if: success()
+        run: |
+          echo "✅ All guardrails passed!"
+          echo "- No hardcoded colors"
+          echo "- No dummy data"
+          echo "- No hardcoded defaults"
+          echo "- Lint passed"
+          echo "- Build successful"
