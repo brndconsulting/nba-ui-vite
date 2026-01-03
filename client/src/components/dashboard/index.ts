@@ -10,3 +10,5 @@ export { WeekMatchupCard } from './WeekMatchupCard';
 export { PlayerAlerts } from './PlayerAlerts';
 export { StandingsSnapshot } from './StandingsSnapshot';
 export { AllMatchupsThisWeek } from './AllMatchupsThisWeek';
+export { H2HHistory } from './H2HHistory';
+export { MetaSyncFooter } from './MetaSyncFooter';

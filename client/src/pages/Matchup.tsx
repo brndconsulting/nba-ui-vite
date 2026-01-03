@@ -29,6 +29,8 @@ import {
   PlayerAlerts,
   StandingsSnapshot,
   AllMatchupsThisWeek,
+  H2HHistory,
+  MetaSyncFooter,
 } from '@/components/dashboard';
 
 function getTimeAgo(date: Date): string {
@@ -217,13 +219,34 @@ export default function Matchup() {
         error={null}
       />
 
-      {/* 7. Standings Snapshot */}
+      {/* 7. H2H History (MissingState permanente V1.3) */}
+      <H2HHistory lastCheckedAt={new Date().toISOString()} />
+
+      {/* 8. Standings Snapshot */}
       <StandingsSnapshot
         standings={standings}
         myTeamKey={teamKey}
         loading={standingsLoading}
         error={standingsError}
         lastSyncAt={standingsLastSyncAt}
+      />
+
+      {/* 9. Meta Sync Footer (data health) */}
+      <MetaSyncFooter
+        syncStatus={{
+          overall_status: isStale ? 'stale' : 'fresh',
+          domains: {
+            matchups: {
+              status: isStale ? 'stale' : 'fresh',
+              last_sync_at: lastSyncAt?.toISOString() || null,
+            },
+            roster: {
+              status: rosterLastSyncAt ? 'fresh' : 'missing',
+              last_sync_at: rosterLastSyncAt || null,
+            },
+          },
+        }}
+        canSync={false}
       />
     </div>
   );
