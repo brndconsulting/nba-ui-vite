@@ -10,7 +10,7 @@
  * IMPORTANT: setActiveContext is ROBUST with fallback:
  * - First try POST with JSON body
  * - If fails, try POST with query params
- * - If both fail, persist locally for session only
+ * - If both fail, persist to localStorage for session persistence
  */
 import { useEffect, useState, useCallback } from 'react';
 import { API_ENDPOINTS, API_BASE } from '@/config/api';
@@ -79,17 +79,37 @@ export function useContext() {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as Context | { data?: Context };
       console.warn('[useContext] Raw data:', data);
 
       // Handle both success envelope and direct data
-      if (data.data) {
+      let contextData: Context | null = null;
+      if ('data' in data && data.data) {
         // Envelope format: { success, meta, data, ... }
-        setContext(data.data);
-        setError(null);
-      } else if (data.leagues) {
+        contextData = data.data;
+      } else if ('leagues' in data) {
         // Direct format: { leagues, active_league_key, ... }
-        setContext(data);
+        contextData = data as Context;
+      }
+
+      if (contextData) {
+        // If no active context from backend, try to restore from localStorage
+        if (!contextData.active_league_key || !contextData.active_team_key) {
+          try {
+            const savedContext = localStorage.getItem('activeContext');
+            if (savedContext) {
+              const parsed = JSON.parse(savedContext) as { league_key?: string; team_key?: string | null };
+              if (parsed.league_key) {
+                contextData.active_league_key = parsed.league_key;
+                contextData.active_team_key = parsed.team_key || undefined;
+                console.warn('[useContext] Restored from localStorage:', contextData);
+              }
+            }
+          } catch (err) {
+            console.warn('[useContext] Failed to restore from localStorage:', err);
+          }
+        }
+        setContext(contextData);
         setError(null);
       } else {
         // No data
@@ -113,7 +133,7 @@ export function useContext() {
    * Set active context with robust fallback
    * 1. Try POST with JSON body
    * 2. If fails, try POST with query params
-   * 3. If both fail, persist locally only
+   * 3. If both fail, persist to localStorage
    */
   const setActiveContext = useCallback(async (leagueKey: string, teamKey?: string): Promise<boolean> => {
     console.warn('[useContext] Setting active context:', { leagueKey, teamKey });
@@ -185,6 +205,17 @@ export function useContext() {
       }
     }
 
+    // Always save to localStorage as fallback for page refresh
+    try {
+      localStorage.setItem('activeContext', JSON.stringify({
+        league_key: leagueKey,
+        team_key: teamKey || null,
+      }));
+      console.warn('[useContext] Saved to localStorage');
+    } catch (err) {
+      console.warn('[useContext] Failed to save to localStorage:', err);
+    }
+
     // Update persistence status
     if (persisted) {
       setPersistenceStatus('synced');
@@ -192,7 +223,7 @@ export function useContext() {
       await fetchContext();
     } else {
       // Keep local state but mark as not persisted
-      console.warn('[useContext] Could not persist to backend - using local state only');
+      console.warn('[useContext] Could not persist to backend - using localStorage fallback');
       setPersistenceStatus('local');
     }
 
