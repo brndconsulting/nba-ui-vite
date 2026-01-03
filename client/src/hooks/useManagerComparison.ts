@@ -66,21 +66,20 @@ export function useManagerComparison(
         const yourManager = managers.find((m: Manager) => m.team_key === teamKey);
         if (yourManager) {
           const yourStandings = standings[yourManager.team_key] || {};
-          setYou({
-            nickname: yourManager.nickname,
-            felo_score: yourManager.felo_score,
-            felo_tier: yourManager.felo_tier,
-            image_url: logoMap.get(yourManager.team_key) || yourManager.image_url,
-            team_name: yourManager.team_name,
-            team_key: yourManager.team_key,
-            is_commissioner: yourManager.is_commissioner,
-            position: yourStandings.position,
-            wins: yourStandings.wins,
-            losses: yourStandings.losses,
-            ties: yourStandings.ties,
-            points_for: yourStandings.points_for,
-            points_against: yourStandings.points_against,
-          });
+            setYou({
+              nickname: yourManager.nickname,
+              felo_score: yourManager.felo_score,
+              felo_tier: yourManager.felo_tier,
+              image_url: logoMap.get(yourManager.team_key) || yourManager.image_url,
+              team_name: yourManager.team_name,
+              team_key: yourManager.team_key,
+              position: yourStandings.position,
+              wins: yourStandings.wins,
+              losses: yourStandings.losses,
+              ties: yourStandings.ties,
+              points_for: yourStandings.points_for,
+              points_against: yourStandings.points_against,
+            });
         }
 
         // Find opponent manager
@@ -95,7 +94,6 @@ export function useManagerComparison(
               image_url: logoMap.get(opponentManager.team_key) || opponentManager.image_url,
               team_name: opponentManager.team_name,
               team_key: opponentManager.team_key,
-              is_commissioner: opponentManager.is_commissioner,
               position: opponentStandings.position,
               wins: opponentStandings.wins,
               losses: opponentStandings.losses,

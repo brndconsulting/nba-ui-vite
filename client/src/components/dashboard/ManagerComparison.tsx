@@ -10,7 +10,6 @@ export interface Manager {
   image_url?: string;
   team_name: string;
   team_key: string;
-  is_commissioner?: string | boolean;
   // Optional fields from backend (when out=metadata is implemented)
   trophies?: {
     gold: number;
@@ -26,6 +25,10 @@ export interface Manager {
   ties?: number;
   points_for?: number;
   points_against?: number;
+  // Head-to-head record
+  h2h_wins?: number;
+  h2h_losses?: number;
+  h2h_ties?: number;
 }
 
 interface ManagerComparisonProps {
@@ -64,7 +67,6 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
   }
 
   const felo = typeof manager.felo_score === 'string' ? parseInt(manager.felo_score) : manager.felo_score;
-  const isCommissioner = manager.is_commissioner === '1' || manager.is_commissioner === true;
 
   return (
     <div className={`flex flex-col p-6 ${position === 'left' ? 'border-r border-border' : ''}`}>
@@ -89,41 +91,44 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
       </div>
 
       {/* Felo Score */}
-      <div className="flex flex-col items-center mb-4">
+      <div className="flex flex-col items-center mb-6">
         <span className="text-xs text-muted-foreground mb-1">Rating</span>
         <span className="text-3xl font-bold text-foreground">{felo}</span>
       </div>
 
-      {/* League Position and Record */}
+      {/* League Position */}
       {manager.position !== undefined && (
-        <div className="grid grid-cols-2 gap-3 w-full mb-4 text-center">
-          <div>
-            <span className="text-xs text-muted-foreground block">Position</span>
-            <span className="text-lg font-bold text-foreground">#{manager.position}</span>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground block">Record</span>
-            <span className="text-sm font-semibold text-foreground">
-              {manager.wins || 0}-{manager.losses || 0}
-              {manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}
-            </span>
-          </div>
+        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+          <span className="text-xs text-muted-foreground block mb-1">Ranking</span>
+          <span className="text-2xl font-bold text-foreground">#{manager.position}</span>
         </div>
       )}
 
-      {/* Commissioner Badge */}
-      {isCommissioner && (
-        <div className="flex justify-center mb-3">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Shield className="w-3 h-3" />
-            Commissioner
-          </Badge>
+      {/* Season Record (W-L-T) */}
+      {(manager.wins !== undefined || manager.losses !== undefined) && (
+        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+          <span className="text-xs text-muted-foreground block mb-1">Season Record</span>
+          <span className="text-lg font-semibold text-foreground">
+            {manager.wins || 0}-{manager.losses || 0}
+            {manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}
+          </span>
+        </div>
+      )}
+
+      {/* Head-to-Head Record */}
+      {(manager.h2h_wins !== undefined || manager.h2h_losses !== undefined) && (
+        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+          <span className="text-xs text-muted-foreground block mb-1">Head-to-Head</span>
+          <span className="text-lg font-semibold text-foreground">
+            {manager.h2h_wins || 0}-{manager.h2h_losses || 0}
+            {manager.h2h_ties && manager.h2h_ties > 0 ? `-${manager.h2h_ties}` : ''}
+          </span>
         </div>
       )}
 
       {/* Points For/Against */}
       {manager.points_for !== undefined && (
-        <div className="grid grid-cols-2 gap-3 w-full mb-3 text-center text-xs">
+        <div className="grid grid-cols-2 gap-3 w-full text-center text-xs">
           <div>
             <span className="text-muted-foreground block">PF</span>
             <span className="font-semibold text-foreground">{manager.points_for || 0}</span>
