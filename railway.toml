@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm install && pnpm build"
+buildCommand = "rm -rf dist node_modules .pnpm-store && pnpm install --frozen-lockfile && pnpm build"
 
 [deploy]
 startCommand = "pnpm dlx serve -s dist/public -l $PORT --no-cache"
