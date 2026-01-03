@@ -43,7 +43,7 @@ export default defineConfig({
     // Proxy API requests to backend (eliminates CORS en dev)
     proxy: {
       '/api': {
-        target: 'https://8000-ijlgepjs4b0mok7qfhfv6-668991c1.sg1.manus.computer',
+        target: 'https://nba-api-production-1f32.up.railway.app',
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, ''),

@@ -1,4 +1,10 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged
+echo "🔍 Running ESLint anti-dummy checks..."
+pnpm exec eslint --fix client/src --max-warnings 0 2>/dev/null || {
+  echo "❌ ESLint found anti-dummy violations"
+  exit 1
+}
+
+echo "✅ No anti-dummy violations found"

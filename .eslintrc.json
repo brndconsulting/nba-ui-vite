@@ -1,0 +1,107 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    
+    "no-console": [
+      "warn",
+      {
+        "allow": [
+          "warn",
+          "error"
+        ]
+      }
+    ],
+    
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    
+    "no-var": "error",
+    "prefer-const": "error",
+    
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "BinaryExpression[operator='||'][right.value=0]",
+        "message": "❌ ANTI-DUMMY RULE: Do not use || 0 for default values. Use ?? 0 or proper validation instead."
+      },
+      {
+        "selector": "BinaryExpression[operator='||'][right.value='0']",
+        "message": "❌ ANTI-DUMMY RULE: Do not use || '0' for default values. Use ?? '0' or proper validation instead."
+      },
+      {
+        "selector": "BinaryExpression[operator='??'][right.value=0]",
+        "message": "❌ ANTI-DUMMY RULE: Do not use ?? 0 for default values. Use proper validation or type narrowing instead."
+      },
+      {
+        "selector": "BinaryExpression[operator='??'][right.value='0']",
+        "message": "❌ ANTI-DUMMY RULE: Do not use ?? '0' for default values. Use proper validation or type narrowing instead."
+      },
+      {
+        "selector": "BinaryExpression[operator='||'][right.value='default_owner']",
+        "message": "❌ ANTI-DUMMY RULE: Do not use || 'default_owner' or other hardcoded defaults. Validate owner_id properly."
+      },
+      {
+        "selector": "BinaryExpression[operator='||'][right.value='77761']",
+        "message": "❌ ANTI-DUMMY RULE: Do not use || '77761' or other hardcoded league IDs. Use real data."
+      },
+      {
+        "selector": "Literal[value='default_owner']",
+        "message": "❌ ANTI-DUMMY RULE: Hardcoded 'default_owner' found. Use real owner_id from context."
+      },
+      {
+        "selector": "Literal[value='77761']",
+        "message": "❌ ANTI-DUMMY RULE: Hardcoded '77761' league ID found. Use real league data."
+      }
+    ],
+    
+    "no-restricted-properties": [
+      "error",
+      {
+        "object": "localStorage",
+        "property": "setItem",
+        "message": "Use proper context/state management instead of localStorage for owner_id"
+      }
+    ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

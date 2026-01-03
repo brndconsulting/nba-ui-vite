@@ -30,36 +30,54 @@ export default [
       react: reactPlugin,
     },
     rules: {
-      // ===== P0: Prohibir colores literales (no tokens shadcn) =====
+      // ===== P0: Unified no-restricted-syntax (all rules in one array) =====
+      // This MUST be a single rule definition to avoid overwrites
       'no-restricted-syntax': [
         'error',
+        // Rule 1: Prohibit hardcoded color classes (not shadcn tokens)
         {
           selector: 'Literal[value=/\\b(text|bg|border|ring|from|to|via)-(black|white|gray|slate|zinc|neutral|stone|orange|amber|lime|emerald|teal|cyan|sky|indigo|violet|purple|fuchsia|pink)(-\\d{2,3})?\\b/]',
           message: 'Hardcoded color classes are not allowed. Use Tailwind tokens (bg-background, text-foreground, border-border, text-muted-foreground, bg-accent, text-destructive, etc.) instead. Status colors (red-*, yellow-*, green-*) are allowed for semantic states.',
         },
+        // Rule 2: Prohibit hardcoded color values (hex, rgb, hsl)
         {
           selector: 'Literal[value=/(#[0-9a-f]{3,6}|rgb\\(|hsl\\()/i]',
           message: 'Hardcoded color values (hex, rgb, hsl) are not allowed. Use CSS variables or Tailwind tokens instead.',
         },
-      ],
-
-      // ===== P0: Prohibir estilos inline Y tipografia inline =====
-      'react/style-prop-object': 'error',
-      
-      // ===== P0: Prohibir valores de tipografia arbitrarios (text-[...], leading-[...], tracking-[...]) =====
-      'no-restricted-syntax': [
-        'error',
+        // Rule 3: Prohibit arbitrary typography values
         {
-          selector: 'Literal[value=/\b(text|leading|tracking)-\[/]',
+          selector: 'Literal[value=/\\b(text|leading|tracking)-\\[/]',
           message: 'Arbitrary typography values (text-[...], leading-[...], tracking-[...]) are not allowed. Use standard Tailwind classes: text-xs/sm/base/lg/xl/2xl, leading-none/tight/snug/normal/relaxed/loose, tracking-tighter/tight/normal/wide/wider/widest. See index.css @layer base for typography scale.',
         },
+        // Rule 4: Prohibit inline style typography
         {
           selector: 'JSXAttribute[name.name="style"] > JSXExpressionContainer ObjectExpression Property[key.name=/fontSize|lineHeight|letterSpacing/]',
           message: 'Inline style typography (style={{ fontSize, lineHeight, letterSpacing }}) is not allowed. Use Tailwind classes instead. See index.css for typography utilities.',
         },
+        // Rule 5: Prohibit dummy fallbacks (|| '0', || 'default', ?? 0, etc.)
+        {
+          selector: 'BinaryExpression[operator="||"] > Literal[value="0"]',
+          message: 'Dummy fallback "0" is not allowed. Use proper error handling or empty states instead.',
+        },
+        {
+          selector: 'BinaryExpression[operator="||"] > Literal[value="default"]',
+          message: 'Dummy fallback "default" is not allowed. Use proper error handling or empty states instead.',
+        },
+        {
+          selector: 'BinaryExpression[operator="??"] > Literal[value=0]',
+          message: 'Dummy fallback 0 is not allowed. Use proper error handling or empty states instead.',
+        },
+        // Rule 6: Prohibit hardcoded IDs (like '77761')
+        {
+          selector: 'Literal[value=/^[0-9]{5,}$/]',
+          message: 'Hardcoded numeric IDs are not allowed. Use context, props, or state instead. If this is a legitimate constant, add a comment explaining its purpose.',
+        },
       ],
 
-      // ===== P0: Prohibir imports de UI externas y colores literales =====
+      // ===== P0: Prohibit inline styles =====
+      'react/style-prop-object': 'error',
+
+      // ===== P0: Prohibit external UI libraries =====
       'no-restricted-imports': [
         'error',
         {
