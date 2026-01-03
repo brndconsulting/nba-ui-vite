@@ -18,11 +18,12 @@ import { useLeagueManagers } from '@/hooks/useLeagueManagers';
 import { useRoster } from '@/hooks/useRoster';
 import { useStandings } from '@/hooks/useStandings';
 import { useSettings } from '@/hooks/useSettings';
+import { useManagerComparison } from '@/hooks/useManagerComparison';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Clock } from 'lucide-react';
 import { ErrorState } from '@/components/states';
 import {
-  ManagerVsManager,
+  ManagerComparison,
   InsiderRecommendations,
   RealVsProjection,
   WeekMatchupCard,
@@ -92,10 +93,7 @@ export default function Matchup() {
   } = useCapabilities(leagueKey);
 
   const {
-    managers,
-    loading: managersLoading,
-    error: managersError,
-    lastSyncAt: managersLastSyncAt,
+    managers: _managers,
   } = useLeagueManagers(leagueKey);
 
   const {
@@ -117,12 +115,17 @@ export default function Matchup() {
     loading: settingsLoading,
   } = useSettings(leagueKey);
 
-  // Find my manager and opponent manager
-  const myManager = managers.find(m => m.team_key === teamKey) || null;
+  // Get opponent team key from matchup
   const opponentTeamKey = matchup?.teams.find(t => t.team_key !== teamKey)?.team_key;
-  const opponentManager = opponentTeamKey 
-    ? managers.find(m => m.team_key === opponentTeamKey) || null
-    : null;
+
+  // Fetch manager comparison data
+  const {
+    you: managerYou,
+    opponent: managerOpponent,
+    loading: managersComparisonLoading,
+  } = useManagerComparison(leagueKey, teamKey, opponentTeamKey);
+
+  // Note: legacy managers data not used, using new useManagerComparison hook instead
 
   // Get stat categories from settings
   const statCategories = settings?.stat_categories || capabilities?.stat_categories || [];
@@ -164,12 +167,10 @@ export default function Matchup() {
       <StaleDataAlert lastSyncAt={lastSyncAt} isStale={isStale} />
 
       {/* 1. Manager vs Manager */}
-      <ManagerVsManager
-        myManager={myManager}
-        opponentManager={opponentManager}
-        loading={managersLoading}
-        error={managersError}
-        lastSyncAt={managersLastSyncAt}
+      <ManagerComparison
+        you={managerYou}
+        opponent={managerOpponent}
+        loading={managersComparisonLoading}
       />
 
       {/* 2. Insider Recommendations */}

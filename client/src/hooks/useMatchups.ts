@@ -39,7 +39,7 @@ export interface NormalizedMatchup {
   is_playoffs: boolean;
   is_consolation: boolean;
   is_tied: boolean;
-  winner_team_key: string | null;
+  winner_team_key?: string | null;
   teams: NormalizedTeam[];
   stat_winners: Array<{ stat_id: string; winner_team_key: string | null; is_tied: boolean }>;
 }
@@ -56,10 +56,10 @@ function normalizeMatchup(matchup: Matchup): NormalizedMatchup {
     name: t.name,
     logo_url: t.logo_url,
     managers: t.managers,
-    points_total: t.points?.total ? parseFloat(t.points.total) : null,
+    points_total: t.points?.total ? parseFloat(String(t.points.total)) : null,
     stats: t.stats?.stats?.map(s => ({
       stat_id: s.stat.stat_id,
-      value: s.stat.value,
+      value: String(s.stat.value),
     })) || [],
     remaining_games: t.remaining_games?.total?.remaining_games ?? 0,
     completed_games: t.remaining_games?.total?.completed_games ?? 0,
@@ -75,11 +75,10 @@ function normalizeMatchup(matchup: Matchup): NormalizedMatchup {
     week: typeof matchup.week === 'string' ? parseInt(matchup.week) : matchup.week,
     week_start: matchup.week_start,
     week_end: matchup.week_end,
-    status: matchup.status,
+    status: matchup.status || '',
     is_playoffs: matchup.is_playoffs === 1 || matchup.is_playoffs === '1',
     is_consolation: matchup.is_consolation === 1 || matchup.is_consolation === '1',
     is_tied: matchup.is_tied === 1 || matchup.is_tied === '1',
-    winner_team_key: matchup.winner_team_key || null,
     teams,
     stat_winners,
   };

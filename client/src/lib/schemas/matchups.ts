@@ -18,7 +18,7 @@ export const matchupMetaSchema = z.object({
 export const statValueSchema = z.object({
   stat: z.object({
     stat_id: z.string(),
-    value: z.string(),
+    value: z.union([z.string(), z.number()]),
   }),
 });
 
@@ -33,7 +33,7 @@ export const teamStatsSchema = z.object({
 export const teamPointsSchema = z.object({
   coverage_type: z.string().optional(),
   week: z.string().optional(),
-  total: z.string().optional(),
+  total: z.union([z.string(), z.number()]).optional(),
 });
 
 // ===== Team Remaining Games Schema =====
@@ -100,20 +100,17 @@ export const statWinnerSchema = z.object({
     is_tied: z.union([z.number(), z.string()]).optional(),
   }),
 });
-
-// ===== Single Matchup Schema =====
+// ===== Matchup Schema =====
 export const matchupSchema = z.object({
   week: z.union([z.number(), z.string()]),
   week_start: z.string(),
   week_end: z.string(),
-  status: z.string(),
-  is_playoffs: z.union([z.number(), z.string()]),
-  is_consolation: z.union([z.number(), z.string()]),
-  is_tied: z.union([z.number(), z.string()]),
+  status: z.string().optional(),
+  is_playoffs: z.union([z.number(), z.string()]).optional(),
+  is_consolation: z.union([z.number(), z.string()]).optional(),
   is_matchup_of_the_week: z.union([z.number(), z.string()]).optional(),
-  winner_team_key: z.string().optional(),
+  is_tied: z.union([z.number(), z.string()]).optional(),
   stat_winners: z.array(statWinnerSchema).optional(),
-  // The "0" key contains the teams wrapper
   "0": matchupTeamsWrapperSchema.optional(),
 });
 
