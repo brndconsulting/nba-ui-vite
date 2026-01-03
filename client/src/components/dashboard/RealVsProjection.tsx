@@ -108,7 +108,7 @@ function WeekActualCard({
       <CardContent>
         <div className="text-2xl font-bold mb-4">{data.score}</div>
         
-        {data?.categories?.length > 0 ? (
+        {data.categories.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -241,7 +241,7 @@ function ProjectionCard({
           <>
             <div className="text-2xl font-bold mb-4">{data.score}</div>
             
-            {data?.categories?.length > 0 && (
+            {data.categories.length > 0 && (
               <Table>
                 <TableHeader>
                   <TableRow>

@@ -2,7 +2,7 @@
  * Hook para consumir contexto desde API /v1/context
  * - Obtiene ligas del owner
  * - Maneja selección activa
- * - Valida con Zod
+ * - Valida envelope format y shape
  * 
  * NOTE: Backend is owner-scoped. The frontend doesn't need to know or send owner_id.
  * The backend determines owner from OAuth session/token.
@@ -75,43 +75,62 @@ export function useContext() {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json() as Context | { data?: Context };
+      const data = await response.json() as any;
 
-      // Handle both success envelope and direct data
-      let contextData: Context | null = null;
-      if ('data' in data && data.data) {
-        // Envelope format: { success, meta, data, ... }
-        contextData = data.data;
-      } else if ('leagues' in data) {
-        // Direct format: { leagues, active_league_key, ... }
-        contextData = data as Context;
-      }
+      // VALIDATION: Check envelope format
+      const success = data.success !== false;
+      const errors = data.errors || [];
+      const contextData = data.data || null;
 
-      if (contextData) {
-        // If no active context from backend, try to restore from localStorage
-        if (!contextData.active_league_key || !contextData.active_team_key) {
-          try {
-            const savedContext = localStorage.getItem('activeContext');
-            if (savedContext) {
-              const parsed = JSON.parse(savedContext) as { league_key?: string; team_key?: string | null };
-              if (parsed.league_key) {
-                contextData.active_league_key = parsed.league_key;
-                contextData.active_team_key = parsed.team_key || undefined;
-              }
-            }
-          } catch (err) {
-            // Silently fail
-          }
-        }
-        setContext(contextData);
-        setError(null);
-      } else {
-        // No data
+      // ERROR CASE 1: Backend returned error in envelope
+      if (!success || errors.length > 0) {
+        const errorMessage = errors[0]?.message || 'Backend returned an error';
+        setError(errorMessage);
         setContext(null);
-        setError(null);
+        setLoading(false);
+        return;
       }
+
+      // ERROR CASE 2: Backend returned data:null (missing context)
+      if (contextData === null) {
+        setError('Context not available (backend returned data:null)');
+        setContext(null);
+        setLoading(false);
+        return;
+      }
+
+      // ERROR CASE 3: Validate context shape - leagues must be array
+      if (!Array.isArray(contextData.leagues)) {
+        setError('Invalid context payload: leagues is not an array');
+        setContext(null);
+        setLoading(false);
+        return;
+      }
+
+      // SUCCESS CASE: Valid context
+      let finalContext = contextData as Context;
+
+      // If no active context from backend, try to restore from localStorage
+      if (!finalContext.active_league_key || !finalContext.active_team_key) {
+        try {
+          const savedContext = localStorage.getItem('activeContext');
+          if (savedContext) {
+            const parsed = JSON.parse(savedContext) as { league_key?: string; team_key?: string | null };
+            if (parsed.league_key) {
+              finalContext.active_league_key = parsed.league_key;
+              finalContext.active_team_key = parsed.team_key || undefined;
+            }
+          }
+        } catch (err) {
+          // Silently fail - localStorage parsing error
+        }
+      }
+
+      setContext(finalContext);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       setContext(null);
     } finally {
       setLoading(false);
