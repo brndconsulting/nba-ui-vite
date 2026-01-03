@@ -19,6 +19,13 @@ export interface Manager {
   };
   user_level?: string;
   user_points?: number;
+  // Standings data
+  position?: number;
+  wins?: number;
+  losses?: number;
+  ties?: number;
+  points_for?: number;
+  points_against?: number;
 }
 
 interface ManagerComparisonProps {
@@ -87,6 +94,23 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
         <span className="text-3xl font-bold text-foreground">{felo}</span>
       </div>
 
+      {/* League Position and Record */}
+      {manager.position !== undefined && (
+        <div className="grid grid-cols-2 gap-3 w-full mb-4 text-center">
+          <div>
+            <span className="text-xs text-muted-foreground block">Position</span>
+            <span className="text-lg font-bold text-foreground">#{manager.position}</span>
+          </div>
+          <div>
+            <span className="text-xs text-muted-foreground block">Record</span>
+            <span className="text-sm font-semibold text-foreground">
+              {manager.wins || 0}-{manager.losses || 0}
+              {manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Commissioner Badge */}
       {isCommissioner && (
         <div className="flex justify-center mb-3">
@@ -94,6 +118,20 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
             <Shield className="w-3 h-3" />
             Commissioner
           </Badge>
+        </div>
+      )}
+
+      {/* Points For/Against */}
+      {manager.points_for !== undefined && (
+        <div className="grid grid-cols-2 gap-3 w-full mb-3 text-center text-xs">
+          <div>
+            <span className="text-muted-foreground block">PF</span>
+            <span className="font-semibold text-foreground">{manager.points_for || 0}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block">PA</span>
+            <span className="font-semibold text-foreground">{manager.points_against || 0}</span>
+          </div>
         </div>
       )}
 

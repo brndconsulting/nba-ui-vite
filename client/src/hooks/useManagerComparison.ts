@@ -47,6 +47,12 @@ export function useManagerComparison(
         const teamsData = (await teamsResponse.json()) as { data?: { teams?: Array<{ team_key: string; logo_url: string }> } };
         const teams = teamsData.data?.teams || [];
 
+        // Fetch matchups to get standings data
+        const matchupsUrl = API_ENDPOINTS.matchups(leagueKey, teamKey);
+        const matchupsResponse = await fetch(matchupsUrl);
+        const matchupsData = (await matchupsResponse.json()) as { data?: { standings?: Record<string, any> } };
+        const standings = matchupsData.data?.standings || {};
+
         // Create a map of team_key -> logo_url
         const logoMap = new Map(teams.map(t => [t.team_key, t.logo_url]));
         
@@ -59,6 +65,7 @@ export function useManagerComparison(
         // Find your manager
         const yourManager = managers.find((m: Manager) => m.team_key === teamKey);
         if (yourManager) {
+          const yourStandings = standings[yourManager.team_key] || {};
           setYou({
             nickname: yourManager.nickname,
             felo_score: yourManager.felo_score,
@@ -67,6 +74,12 @@ export function useManagerComparison(
             team_name: yourManager.team_name,
             team_key: yourManager.team_key,
             is_commissioner: yourManager.is_commissioner,
+            position: yourStandings.position,
+            wins: yourStandings.wins,
+            losses: yourStandings.losses,
+            ties: yourStandings.ties,
+            points_for: yourStandings.points_for,
+            points_against: yourStandings.points_against,
           });
         }
 
@@ -74,6 +87,7 @@ export function useManagerComparison(
         if (opponentTeamKey) {
           const opponentManager = managers.find((m: Manager) => m.team_key === opponentTeamKey);
           if (opponentManager) {
+            const opponentStandings = standings[opponentManager.team_key] || {};
             setOpponent({
               nickname: opponentManager.nickname,
               felo_score: opponentManager.felo_score,
@@ -82,6 +96,12 @@ export function useManagerComparison(
               team_name: opponentManager.team_name,
               team_key: opponentManager.team_key,
               is_commissioner: opponentManager.is_commissioner,
+              position: opponentStandings.position,
+              wins: opponentStandings.wins,
+              losses: opponentStandings.losses,
+              ties: opponentStandings.ties,
+              points_for: opponentStandings.points_for,
+              points_against: opponentStandings.points_against,
             });
           }
         }
