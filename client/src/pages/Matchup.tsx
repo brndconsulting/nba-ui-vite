@@ -172,7 +172,7 @@ export default function Matchup() {
         loading={matchupsLoading}
         error={null}
         projectionAvailable={false}
-        lastSyncAt={lastSyncAt ? lastSyncAt.toISOString() : null}
+        lastSyncAt={lastSyncAt instanceof Date ? lastSyncAt.toISOString() : (typeof lastSyncAt === 'string' ? lastSyncAt : null)}
       />
 
       {/* 4. Week Matchup Card */}
@@ -189,7 +189,7 @@ export default function Matchup() {
         players={rosterPlayers}
         loading={rosterLoading}
         error={rosterError}
-        lastSyncAt={rosterLastSyncAt ? rosterLastSyncAt.toISOString() : null}
+        lastSyncAt={rosterLastSyncAt instanceof Date ? rosterLastSyncAt.toISOString() : (typeof rosterLastSyncAt === 'string' ? rosterLastSyncAt : null)}
       />
 
       {/* 6. All Matchups This Week */}
@@ -210,7 +210,7 @@ export default function Matchup() {
 
       {/* Meta Footer */}
       <MetaSyncFooter
-        lastSyncAt={lastSyncAt ? lastSyncAt.toISOString() : null}
+        lastSyncAt={lastSyncAt instanceof Date ? lastSyncAt.toISOString() : (typeof lastSyncAt === 'string' ? lastSyncAt : null)}
       />
     </div>
   );
