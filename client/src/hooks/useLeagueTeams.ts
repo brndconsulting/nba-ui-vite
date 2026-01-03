@@ -41,7 +41,6 @@ export function useLeagueTeams(leagueKey: string | null): UseLeagueTeamsResult {
 
     try {
       const url = API_ENDPOINTS.leagueTeams(leagueKey);
-      console.warn('[useLeagueTeams] Fetching:', url);
       
       const response = await fetch(url);
       
@@ -50,7 +49,6 @@ export function useLeagueTeams(leagueKey: string | null): UseLeagueTeamsResult {
       }
       
       const data = await response.json();
-      console.warn('[useLeagueTeams] Response:', data);
 
       // Handle envelope format: { success, meta, data: { teams: [...] } }
       if (data.data?.teams) {
@@ -67,7 +65,6 @@ export function useLeagueTeams(leagueKey: string | null): UseLeagueTeamsResult {
         setTeams([]);
       }
     } catch (err) {
-      console.error('[useLeagueTeams] Error:', err);
       setError(err instanceof Error ? err.message : 'Network error loading teams');
       setTeams([]);
     } finally {

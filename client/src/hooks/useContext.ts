@@ -61,26 +61,21 @@ export function useContext() {
 
   // Fetch context from API
   const fetchContext = useCallback(async () => {
-    console.warn('[useContext] Starting fetch (owner-scoped backend)');
-
     try {
       setLoading(true);
       const url = API_ENDPOINTS.context();
-      console.warn('[useContext] Fetching from:', url);
       
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      console.warn('[useContext] Response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json() as Context | { data?: Context };
-      console.warn('[useContext] Raw data:', data);
 
       // Handle both success envelope and direct data
       let contextData: Context | null = null;
@@ -102,11 +97,10 @@ export function useContext() {
               if (parsed.league_key) {
                 contextData.active_league_key = parsed.league_key;
                 contextData.active_team_key = parsed.team_key || undefined;
-                console.warn('[useContext] Restored from localStorage:', contextData);
               }
             }
           } catch (err) {
-            console.warn('[useContext] Failed to restore from localStorage:', err);
+            // Silently fail
           }
         }
         setContext(contextData);
@@ -117,7 +111,6 @@ export function useContext() {
         setError(null);
       }
     } catch (err) {
-      console.error('[useContext] Error:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
       setContext(null);
     } finally {
@@ -136,8 +129,6 @@ export function useContext() {
    * 3. If both fail, persist to localStorage
    */
   const setActiveContext = useCallback(async (leagueKey: string, teamKey?: string): Promise<boolean> => {
-    console.warn('[useContext] Setting active context:', { leagueKey, teamKey });
-    
     // Optimistic update - update local state immediately
     setContext(prev => {
       if (!prev) return prev;
@@ -154,8 +145,6 @@ export function useContext() {
     // Attempt #1: POST with JSON body
     try {
       const url = `${API_BASE}/v1/context/active`;
-      console.warn('[useContext] Attempt #1 - POST with JSON body:', url);
-      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -168,13 +157,10 @@ export function useContext() {
       });
 
       if (response.ok) {
-        console.warn('[useContext] Attempt #1 succeeded');
         persisted = true;
-      } else {
-        console.warn('[useContext] Attempt #1 failed:', response.status);
       }
     } catch (err) {
-      console.warn('[useContext] Attempt #1 error:', err);
+      // Silently fail
     }
 
     // Attempt #2: POST with query params (fallback)
@@ -185,8 +171,6 @@ export function useContext() {
         if (teamKey) params.set('team_key', teamKey);
         
         const url = `${API_BASE}/v1/context/active?${params.toString()}`;
-        console.warn('[useContext] Attempt #2 - POST with query params:', url);
-        
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -195,13 +179,10 @@ export function useContext() {
         });
 
         if (response.ok) {
-          console.warn('[useContext] Attempt #2 succeeded');
           persisted = true;
-        } else {
-          console.warn('[useContext] Attempt #2 failed:', response.status);
         }
       } catch (err) {
-        console.warn('[useContext] Attempt #2 error:', err);
+        // Silently fail
       }
     }
 
@@ -211,9 +192,8 @@ export function useContext() {
         league_key: leagueKey,
         team_key: teamKey || null,
       }));
-      console.warn('[useContext] Saved to localStorage');
     } catch (err) {
-      console.warn('[useContext] Failed to save to localStorage:', err);
+      // Silently fail
     }
 
     // Update persistence status
@@ -223,7 +203,6 @@ export function useContext() {
       await fetchContext();
     } else {
       // Keep local state but mark as not persisted
-      console.warn('[useContext] Could not persist to backend - using localStorage fallback');
       setPersistenceStatus('local');
     }
 

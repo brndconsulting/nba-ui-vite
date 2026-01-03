@@ -93,7 +93,6 @@ function normalizeMatchup(matchup: Matchup, leagueKey?: string): NormalizedMatch
         teams[1].team_key
       );
     } catch (err) {
-      console.warn('[normalizeMatchup] Failed to generate insider insights:', err);
     }
   }
 
@@ -129,7 +128,6 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
         setError(null);
         
         const url = API_ENDPOINTS.matchups(leagueKey, teamKey);
-        console.warn('[useMatchups] Fetching:', url);
 
         const response = await fetch(url, {
           headers: {
@@ -142,11 +140,9 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
         }
 
         const data = await response.json();
-        console.warn('[useMatchups] Raw response:', data);
 
         // Validate with Zod
         const validated = matchupsResponseSchema.parse(data);
-        console.warn('[useMatchups] Validated:', validated);
 
         if (validated.data) {
           setRawData(validated.data);
@@ -163,7 +159,6 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
           setError(null);
         }
       } catch (err) {
-        console.error('[useMatchups] Error:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
         setRawData(null);
       } finally {
@@ -238,7 +233,6 @@ export function useCapabilities(leagueKey: string) {
       try {
         setLoading(true);
         const url = API_ENDPOINTS.settings(leagueKey);
-        console.warn('[useCapabilities] Fetching:', url);
 
         const response = await fetch(url, {
           headers: {
@@ -251,7 +245,6 @@ export function useCapabilities(leagueKey: string) {
         }
 
         const data = await response.json();
-        console.warn('[useCapabilities] Response:', data);
 
         // Handle envelope format
         const settings = data.data || data;
@@ -268,7 +261,6 @@ export function useCapabilities(leagueKey: string) {
           setError('No settings data available');
         }
       } catch (err) {
-        console.error('[useCapabilities] Error:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
         setCapabilities(null);
       } finally {

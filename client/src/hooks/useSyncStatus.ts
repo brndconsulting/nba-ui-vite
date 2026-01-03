@@ -48,7 +48,6 @@ export function useSyncStatus(
 
     try {
       const url = API_ENDPOINTS.syncStatus(leagueKey || undefined);
-      console.warn('[useSyncStatus] Fetching:', url);
       
       const response = await fetch(url);
       
@@ -57,7 +56,6 @@ export function useSyncStatus(
       }
 
       const envelope = await response.json();
-      console.warn('[useSyncStatus] Response:', envelope);
       
       // Handle envelope format
       if (envelope.data) {
@@ -69,7 +67,6 @@ export function useSyncStatus(
         throw new Error(envelope.errors[0]?.message || 'Unknown error');
       }
     } catch (err) {
-      console.error('[useSyncStatus] Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch sync status');
       setData(null);
     } finally {
