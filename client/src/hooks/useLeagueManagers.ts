@@ -72,8 +72,9 @@ export function useLeagueManagers(leagueKey: string | null): UseLeagueManagersRe
 
       const json: LeagueManagersResponse = await response.json();
 
-      if (json.errors && json.errors.length > 0) {
-        throw new Error(json.errors[0].message);
+      const errors = Array.isArray(json.errors) ? json.errors : [];
+      if (errors.length > 0) {
+        throw new Error(errors[0].message);
       }
 
       if (json.data?.managers) {

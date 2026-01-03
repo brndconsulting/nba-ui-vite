@@ -116,13 +116,6 @@ export default function Matchup() {
   // Get opponent team key from matchup
   const opponentTeamKey = matchup?.teams.find(t => t.team_key !== teamKey)?.team_key;
 
-  // Fetch manager comparison data
-  const {
-    you: _you,
-    opponent: _opponent,
-    loading: managersComparisonLoading,
-  } = useManagerComparison(leagueKey, teamKey, opponentTeamKey);
-
   // Get stat categories from settings
   const statCategories = settings?.stat_categories || capabilities?.stat_categories || [];
 
@@ -172,7 +165,7 @@ export default function Matchup() {
         loading={matchupsLoading}
         error={null}
         projectionAvailable={false}
-        lastSyncAt={lastSyncAt instanceof Date ? lastSyncAt.toISOString() : (typeof lastSyncAt === 'string' ? lastSyncAt : null)}
+        lastSyncAt={lastSyncAt}
       />
 
       {/* 4. Week Matchup Card */}
@@ -189,7 +182,7 @@ export default function Matchup() {
         players={rosterPlayers}
         loading={rosterLoading}
         error={rosterError}
-        lastSyncAt={rosterLastSyncAt instanceof Date ? rosterLastSyncAt.toISOString() : (typeof rosterLastSyncAt === 'string' ? rosterLastSyncAt : null)}
+        lastSyncAt={rosterLastSyncAt}
       />
 
       {/* 6. All Matchups This Week */}
@@ -210,7 +203,7 @@ export default function Matchup() {
 
       {/* Meta Footer */}
       <MetaSyncFooter
-        lastSyncAt={lastSyncAt instanceof Date ? lastSyncAt.toISOString() : (typeof lastSyncAt === 'string' ? lastSyncAt : null)}
+        lastSyncAt={lastSyncAt}
       />
     </div>
   );

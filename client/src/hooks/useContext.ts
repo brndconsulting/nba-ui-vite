@@ -79,7 +79,7 @@ export function useContext() {
 
       // VALIDATION: Check envelope format
       const success = data.success !== false;
-      const errors = data.errors || [];
+      const errors = Array.isArray(data.errors) ? data.errors : [];
       const contextData = data.data || null;
 
       // ERROR CASE 1: Backend returned error in envelope

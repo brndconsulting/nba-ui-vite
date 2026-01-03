@@ -90,8 +90,9 @@ export function useStandings(leagueKey: string | null): UseStandingsResult {
 
       const json: StandingsResponse = await response.json();
 
-      if (json.errors && json.errors.length > 0) {
-        throw new Error(json.errors[0].message);
+      const errors = Array.isArray(json.errors) ? json.errors : [];
+      if (errors.length > 0) {
+        throw new Error(errors[0].message);
       }
 
       if (json.data?.teams) {

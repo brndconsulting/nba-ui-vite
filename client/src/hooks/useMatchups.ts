@@ -114,7 +114,7 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
   const [rawData, setRawData] = useState<MatchupsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMatchups = async () => {
@@ -148,9 +148,9 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
           setRawData(validated.data);
           // Use snapshot_date or last_sync_at from meta
           if (validated.meta?.last_sync_at) {
-            setLastSyncAt(new Date(validated.meta.last_sync_at));
+            setLastSyncAt(validated.meta.last_sync_at);
           } else if (validated.meta?.snapshot_date) {
-            setLastSyncAt(new Date(validated.meta.snapshot_date));
+            setLastSyncAt(validated.meta.snapshot_date);
           }
           setError(null);
         } else {
