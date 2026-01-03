@@ -128,9 +128,11 @@ export default function SelectPage() {
                   value={selectedLeagueKey}
                   onValueChange={setSelectedLeagueKey}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Choose a league...">
-                      {selectedLeague ? `${selectedLeague.name} (${selectedLeague.season})` : "Choose a league..."}
+                      <span className="truncate">
+                        {selectedLeague ? `${selectedLeague.name} (${selectedLeague.season})` : "Choose a league..."}
+                      </span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -180,9 +182,11 @@ export default function SelectPage() {
                   value={selectedTeamKey}
                   onValueChange={setSelectedTeamKey}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Choose a team...">
-                      {selectedTeam ? selectedTeam.name : "Choose a team..."}
+                      <span className="truncate">
+                        {selectedTeam ? selectedTeam.name : "Choose a team..."}
+                      </span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>

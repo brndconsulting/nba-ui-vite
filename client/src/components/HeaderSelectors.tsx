@@ -56,7 +56,11 @@ export function HeaderSelectors() {
         onValueChange={handleLeagueChange}
       >
         <SelectTrigger className="w-[180px] h-9">
-          <SelectValue placeholder="Select league" />
+          <SelectValue placeholder="Select league">
+            <span className="truncate block max-w-[140px]">
+              {activeLeague?.name || "Select league"}
+            </span>
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {context.leagues.map((league) => (
@@ -78,7 +82,11 @@ export function HeaderSelectors() {
             {teamsLoading ? (
               <Skeleton className="h-4 w-20" />
             ) : (
-              <SelectValue placeholder="Select team" />
+              <SelectValue placeholder="Select team">
+                <span className="truncate block max-w-[120px]">
+                  {activeTeam?.name || "Select team"}
+                </span>
+              </SelectValue>
             )}
           </SelectTrigger>
           <SelectContent>
