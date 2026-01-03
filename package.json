@@ -5,8 +5,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "vite build",
+    "build:full": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "start": "serve -s dist/public -l $PORT",
+    "start:node": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -62,6 +64,7 @@
     "react-hook-form": "^7.64.0",
     "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.2",
+    "serve": "^14.2.5",
     "sonner": "^2.0.7",
     "streamdown": "^1.4.0",
     "tailwind-merge": "^3.3.1",
@@ -71,8 +74,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "husky": "^9.0.0",
-    "lint-staged": "^15.2.0",
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
     "@eslint/js": "^9.39.2",
     "@tailwindcss/typography": "^0.5.15",
@@ -92,6 +93,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "globals": "^17.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
     "pnpm": "^10.15.1",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
