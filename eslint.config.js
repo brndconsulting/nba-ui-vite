@@ -125,6 +125,19 @@ export default [
       'react/no-danger-with-children': 'error',
       'react/no-danger': 'warn',
 
+      // ===== P0: Prevent dummy data (fallback numbers) =====
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'BinaryExpression[operator="||"] > Literal[value=/^(0|"0"|-|N\/A|--|"-")$/]',
+          message: 'Dummy data fallback detected. Never use || 0, || "0", || "-", etc. for Yahoo-derived data. Use <Skeleton /> while loading, <EmptyState /> if no data, or <ErrorState /> if fetch failed.',
+        },
+        {
+          selector: 'LogicalExpression[operator="??"] > Literal[value=/^(0|"0"|-|N\/A|--|"-")$/]',
+          message: 'Dummy data fallback detected. Never use ?? 0, ?? "0", etc. for Yahoo-derived data. Use explicit state components instead.',
+        },
+      ],
+
       // ===== General =====
       'no-console': [
         'warn',
@@ -134,6 +147,15 @@ export default [
       ],
       'no-debugger': 'error',
       'no-undef': 'warn', // Globals are now properly defined
+
+      // ===== P0: Prevent hardcoded context/league defaults =====
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/^(466\.1\.77761|777761|test-league|default-team|mock-)$/]',
+          message: 'Hardcoded league/team IDs detected. These must come from context or props, never hardcoded. Use useContext(LeagueContext) or pass as props.',
+        },
+      ]
     },
   },
 
