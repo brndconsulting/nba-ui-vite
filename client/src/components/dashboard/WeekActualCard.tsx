@@ -4,76 +4,43 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
-interface MatchupCategory {
+interface MatchupStat {
   stat_key: string;
   display_label: string;
   you_value: string | number | null;
   opponent_value: string | number | null;
-  result: 'W' | 'L' | 'T' | '-';
+  result?: 'W' | 'L' | 'T' | '-';
+  value_type?: 'count' | 'ratio' | 'percentage';
 }
 
-interface WeekMatchupCardProps {
+interface WeekActualCardProps {
   week: number;
-  youTeam: string;
-  opponentTeam: string;
-  weekStart?: string;
-  weekEnd?: string;
-  categories: MatchupCategory[];
+  stats: MatchupStat[];
   seriesScore?: string;
   lastSyncAt?: string;
   isLoading?: boolean;
   error?: string;
 }
 
-const getResultBadgeVariant = (result: string) => {
-  switch (result) {
-    case 'W':
-      return 'default';
-    case 'L':
-      return 'secondary';
-    case 'T':
-      return 'outline';
-    default:
-      return 'outline';
-  }
-};
-
-const getResultColor = (result: string) => {
-  switch (result) {
-    case 'W':
-      return 'text-green-700';
-    case 'L':
-      return 'text-red-700';
-    case 'T':
-      return 'text-yellow-700';
-    default:
-      return 'text-muted-foreground';
-  }
-};
-
-export function WeekMatchupCard({
+export function WeekActualCard({
   week,
-  youTeam,
-  opponentTeam,
-  weekStart,
-  weekEnd,
-  categories,
+  stats,
   seriesScore,
   lastSyncAt,
   isLoading,
   error,
-}: WeekMatchupCardProps) {
+}: WeekActualCardProps) {
   if (isLoading) {
     return (
       <Card className="h-full">
         <CardHeader>
-          <CardTitle>Week {week} Matchup</CardTitle>
-          <CardDescription>Category breakdown</CardDescription>
+          <CardTitle>Week {week} Actual</CardTitle>
+          <CardDescription>Current matchup score</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
             ))}
           </div>
         </CardContent>
@@ -85,8 +52,8 @@ export function WeekMatchupCard({
     return (
       <Card className="h-full border-destructive/50">
         <CardHeader>
-          <CardTitle>Week {week} Matchup</CardTitle>
-          <CardDescription>Category breakdown</CardDescription>
+          <CardTitle>Week {week} Actual</CardTitle>
+          <CardDescription>Current matchup score</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-destructive">
@@ -98,20 +65,15 @@ export function WeekMatchupCard({
     );
   }
 
-  const hasCategories = categories && categories.length > 0;
-  const dateRange = weekStart && weekEnd ? `${weekStart} – ${weekEnd}` : '';
+  const hasStats = stats && stats.length > 0;
 
   return (
-    <Card className="h-full flex flex-col md:col-span-2">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Week {week} Matchup</CardTitle>
-            <CardDescription className="mt-1">
-              {dateRange && <span>{dateRange}</span>}
-              {dateRange && <span className="mx-2">•</span>}
-              <span>{youTeam} vs {opponentTeam}</span>
-            </CardDescription>
+            <CardTitle>Week {week} Actual</CardTitle>
+            <CardDescription>Current matchup score</CardDescription>
           </div>
           {seriesScore && (
             <Badge variant="secondary" className="text-lg px-3 py-1">
@@ -121,46 +83,37 @@ export function WeekMatchupCard({
         </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto">
-        {!hasCategories ? (
+        {!hasStats ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <AlertCircle className="h-4 w-4" />
-            <span>No matchup data available for this week</span>
+            <span>No stats available in snapshot</span>
           </div>
         ) : (
           <Table className="text-sm">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[35%]">Category</TableHead>
+                <TableHead className="w-[40%]">Category</TableHead>
                 <TableHead className="text-right">You</TableHead>
                 <TableHead className="text-right">Opponent</TableHead>
-                <TableHead className="text-center w-[80px]">Result</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((cat) => (
-                <TableRow key={cat.stat_key}>
-                  <TableCell className="font-medium">{cat.display_label}</TableCell>
+              {stats.map((stat) => (
+                <TableRow key={stat.stat_key}>
+                  <TableCell className="font-medium">{stat.display_label}</TableCell>
                   <TableCell className="text-right">
-                    {cat.you_value === null || cat.you_value === '-' ? (
+                    {stat.you_value === null || stat.you_value === '-' ? (
                       <span className="text-muted-foreground">-</span>
                     ) : (
-                      <span>{cat.you_value}</span>
+                      <span>{stat.you_value}</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    {cat.opponent_value === null || cat.opponent_value === '-' ? (
+                    {stat.opponent_value === null || stat.opponent_value === '-' ? (
                       <span className="text-muted-foreground">-</span>
                     ) : (
-                      <span>{cat.opponent_value}</span>
+                      <span>{stat.opponent_value}</span>
                     )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge
-                      variant={getResultBadgeVariant(cat.result)}
-                      className={`${getResultColor(cat.result)}`}
-                    >
-                      {cat.result === '-' ? 'N/A' : cat.result}
-                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}

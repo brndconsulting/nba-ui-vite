@@ -181,12 +181,15 @@ export default function Matchup() {
 
       {/* 4. Week Matchup Card + Breakdown */}
       <WeekMatchupCard
-        matchup={matchup}
-        myTeamKey={teamKey}
-        statCategories={statCategories}
-        loading={matchupsLoading || capabilitiesLoading}
-        error={null}
-        lastSyncAt={lastSyncAt?.toISOString() || null}
+        week={matchup?.week || 1}
+        youTeam={matchup?.teams.find(t => t.team_key === teamKey)?.name || 'Your Team'}
+        opponentTeam={matchup?.teams.find(t => t.team_key !== teamKey)?.name || 'Opponent'}
+        weekStart={matchup?.week_start}
+        weekEnd={matchup?.week_end}
+        categories={[]}
+        lastSyncAt={lastSyncAt?.toISOString()}
+        isLoading={matchupsLoading || capabilitiesLoading}
+        error={undefined}
       />
 
       {/* 5. Player Alerts */}
