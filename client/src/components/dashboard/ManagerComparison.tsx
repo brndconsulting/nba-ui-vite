@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+=======
+import React, { useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { useManagerComparison } from '@/hooks/useManagerComparison';
+>>>>>>> 906a2a0 (feat: ManagerComparison component with two-column layout and real data integration)
 
 export interface Manager {
   nickname: string;
@@ -84,11 +94,32 @@ export function ManagerComparison({
   status = 'live',
   timeRemaining
 }: ManagerComparisonProps) {
+<<<<<<< HEAD
+=======
+  const { managers, matchupData, loading, error } = useManagerComparison(
+    leagueKey,
+    teamKey,
+    opponentTeamKey
+  );
+
+  // Debug logging
+  useEffect(() => {
+    console.log('ManagerComparison - managers:', managers);
+    console.log('ManagerComparison - matchupData:', matchupData);
+    console.log('ManagerComparison - loading:', loading);
+    console.log('ManagerComparison - error:', error);
+  }, [managers, matchupData, loading, error]);
+
+>>>>>>> 906a2a0 (feat: ManagerComparison component with two-column layout and real data integration)
   if (loading) {
     return (
       <Card>
         <CardContent className="p-6">
+<<<<<<< HEAD
           <div className="h-64 bg-background rounded animate-pulse" />
+=======
+          <div className="h-40 bg-muted rounded animate-pulse" />
+>>>>>>> 906a2a0 (feat: ManagerComparison component with two-column layout and real data integration)
         </CardContent>
       </Card>
     );
@@ -107,6 +138,7 @@ export function ManagerComparison({
 
   return (
     <Card className="overflow-hidden">
+<<<<<<< HEAD
       <CardContent className="p-0">
         {/* A) TOP BAR - Context */}
         <div className="flex justify-between items-center px-6 py-3 border-b border-border bg-background/50">
@@ -270,6 +302,167 @@ export function ManagerComparison({
             </span>
           </div>
         </div>
+=======
+      {/* TWO-COLUMN LAYOUT - Single card divided in half, NO STACKING */}
+      <CardContent className="p-0">
+        <div className="grid grid-cols-2 gap-0">
+          {/* LEFT COLUMN - Your Team */}
+          <div className="border-r p-6 space-y-4">
+            {/* Team Header */}
+            <div className="flex flex-col items-center gap-3">
+              <Avatar className="w-14 h-14">
+                <AvatarImage src={you?.image_url} alt={you?.team_name} />
+                <AvatarFallback>{getInitials(you?.team_name || 'Team')}</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <h3 className="font-bold text-base text-foreground">{you?.team_name || 'Your Team'}</h3>
+                <p className="text-xs text-muted-foreground">{you?.nickname || 'Manager'}</p>
+              </div>
+            </div>
+
+            {/* Weekly Score */}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-foreground">{youScore}</div>
+              <p className="text-xs text-muted-foreground">Weekly Score</p>
+            </div>
+
+            {/* Games Played */}
+            <div className="text-center">
+              <div className="text-sm font-semibold text-foreground">
+                {youGames}/{youTotal}
+              </div>
+              <p className="text-xs text-muted-foreground">Games Played</p>
+            </div>
+
+            {/* Stats Grid - Tier, Rating, Ranking, Record (2x2) */}
+            <div className="grid grid-cols-2 gap-3 text-center">
+              {/* Tier */}
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Tier</p>
+                {you?.felo_tier && (
+                  <Badge variant={getTierVariant(you.felo_tier)} className="justify-center w-full text-xs">
+                    {getTierLabel(you.felo_tier)}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Rating */}
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Rating</p>
+                <span className="font-bold text-foreground text-sm block">
+                  {typeof you?.felo_score === 'string' ? parseInt(you.felo_score) : you?.felo_score || '—'}
+                </span>
+              </div>
+
+              {/* Ranking */}
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Ranking</p>
+                <span className="font-bold text-foreground text-sm block">
+                  {getRankingLabel(you?.position)}
+                </span>
+              </div>
+
+              {/* Record */}
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Record</p>
+                <span className="font-bold text-foreground text-sm block">
+                  {you?.wins || 0}-{you?.losses || 0}
+                  {you?.ties && you.ties > 0 ? `-${you.ties}` : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN - Opponent Team */}
+          {opponent ? (
+            <div className="p-6 space-y-4">
+              {/* Team Header */}
+              <div className="flex flex-col items-center gap-3">
+                <Avatar className="w-14 h-14">
+                  <AvatarImage src={opponent?.image_url} alt={opponent?.team_name} />
+                  <AvatarFallback>{getInitials(opponent?.team_name || 'Team')}</AvatarFallback>
+                </Avatar>
+                <div className="text-center">
+                  <h3 className="font-bold text-base text-foreground">{opponent?.team_name || 'Opponent'}</h3>
+                  <p className="text-xs text-muted-foreground">{opponent?.nickname || 'Manager'}</p>
+                </div>
+              </div>
+
+              {/* Weekly Score */}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-foreground">{oppScore}</div>
+                <p className="text-xs text-muted-foreground">Weekly Score</p>
+              </div>
+
+              {/* Games Played */}
+              <div className="text-center">
+                <div className="text-sm font-semibold text-foreground">
+                  {oppGames}/{oppTotal}
+                </div>
+                <p className="text-xs text-muted-foreground">Games Played</p>
+              </div>
+
+              {/* Stats Grid - Tier, Rating, Ranking, Record (2x2) */}
+              <div className="grid grid-cols-2 gap-3 text-center">
+                {/* Tier */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Tier</p>
+                  {opponent?.felo_tier && (
+                    <Badge variant={getTierVariant(opponent.felo_tier)} className="justify-center w-full text-xs">
+                      {getTierLabel(opponent.felo_tier)}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Rating */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Rating</p>
+                  <span className="font-bold text-foreground text-sm block">
+                    {typeof opponent?.felo_score === 'string'
+                      ? parseInt(opponent.felo_score)
+                      : opponent?.felo_score || '—'}
+                  </span>
+                </div>
+
+                {/* Ranking */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Ranking</p>
+                  <span className="font-bold text-foreground text-sm block">
+                    {getRankingLabel(opponent?.position)}
+                  </span>
+                </div>
+
+                {/* Record */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Record</p>
+                  <span className="font-bold text-foreground text-sm block">
+                    {opponent?.wins || 0}-{opponent?.losses || 0}
+                    {opponent?.ties && opponent.ties > 0 ? `-${opponent.ties}` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-6 flex items-center justify-center text-muted-foreground text-sm">
+              No opponent data
+            </div>
+          )}
+        </div>
+
+        {/* PROGRESS BAR - Full width at bottom */}
+        {totalGames > 0 && (
+          <>
+            <Separator />
+            <div className="px-6 py-4 space-y-2">
+              <Progress value={youProgressPercent} className="h-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{you?.team_name}</span>
+                <span>{opponent?.team_name || 'Opponent'}</span>
+              </div>
+            </div>
+          </>
+        )}
+>>>>>>> 906a2a0 (feat: ManagerComparison component with two-column layout and real data integration)
       </CardContent>
     </Card>
   );

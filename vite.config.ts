@@ -45,8 +45,12 @@ export default defineConfig({
       '/api': {
         target: 'https://nba-api-production-1f32.up.railway.app',
         changeOrigin: true,
-        secure: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        ws: true,
+        agent: false,
+        httpAgent: false,
+        httpsAgent: false,
       },
     },
   },
