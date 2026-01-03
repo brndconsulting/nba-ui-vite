@@ -140,8 +140,7 @@ export function InsiderPanel({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      // Aquí iría la navegación
-                      console.warn('Action:', action.action);
+                      // Action handler
                     }}
                   >
                     {getCopyText(action.label_key)}
@@ -171,7 +170,7 @@ export function InsiderPanel({
                         </div>
                         <div>
                           <strong>{copy.insider.evidence.lastSyncAt}:</strong>{' '}
-                          {ev.last_sync_at || 'N/A'}
+                          {ev.last_sync_at ? new Date(ev.last_sync_at).toLocaleString() : '—'}
                         </div>
                         {ev.checksum && (
                           <div>

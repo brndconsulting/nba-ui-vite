@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
+import { MissingState } from '@/components/states';
 
 interface MatchupCategory {
   stat_key: string;
@@ -155,12 +156,16 @@ export function WeekMatchupCard({
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge
-                      variant={getResultBadgeVariant(cat.result)}
-                      className={`${getResultColor(cat.result)}`}
-                    >
-                      {cat.result === '-' ? 'N/A' : cat.result}
-                    </Badge>
+                    {cat.result === '-' ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      <Badge
+                        variant={getResultBadgeVariant(cat.result)}
+                        className={`${getResultColor(cat.result)}`}
+                      >
+                        {cat.result}
+                      </Badge>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
