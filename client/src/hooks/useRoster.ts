@@ -66,14 +66,14 @@ interface UseRosterResult {
   refetch: () => void;
 }
 
-export function useRoster(teamKey: string | null): UseRosterResult {
+export function useRoster(leagueKey: string | null, teamKey: string | null): UseRosterResult {
   const [players, setPlayers] = useState<RosterPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
 
   const fetchRoster = useCallback(async () => {
-    if (!teamKey) {
+    if (!leagueKey || !teamKey) {
       setPlayers([]);
       setError(null);
       return;
@@ -83,7 +83,7 @@ export function useRoster(teamKey: string | null): UseRosterResult {
     setError(null);
 
     try {
-      const response = await fetch(API_ENDPOINTS.roster(teamKey));
+      const response = await fetch(API_ENDPOINTS.roster(leagueKey, teamKey));
       
       if (!response.ok) {
         if (response.status === 401) {

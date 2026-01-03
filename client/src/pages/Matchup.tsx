@@ -102,7 +102,7 @@ export default function Matchup() {
     loading: rosterLoading,
     error: rosterError,
     lastSyncAt: rosterLastSyncAt,
-  } = useRoster(teamKey);
+  } = useRoster(leagueKey, teamKey);
 
   const {
     standings,
@@ -172,13 +172,12 @@ export default function Matchup() {
         loading={matchupsLoading}
         error={null}
         projectionAvailable={false}
-        lastSyncAt={lastSyncAt}
+        lastSyncAt={lastSyncAt ? lastSyncAt.toISOString() : null}
       />
 
       {/* 4. Week Matchup Card */}
       {matchup && currentWeek !== undefined && currentWeek !== null && (
         <WeekMatchupCard
-          matchup={matchup}
           week={typeof currentWeek === 'number' ? currentWeek : parseInt(String(currentWeek))}
           teamKey={teamKey}
           loading={matchupsLoading}
@@ -190,12 +189,13 @@ export default function Matchup() {
         players={rosterPlayers}
         loading={rosterLoading}
         error={rosterError}
+        lastSyncAt={rosterLastSyncAt ? rosterLastSyncAt.toISOString() : null}
       />
 
       {/* 6. All Matchups This Week */}
       <AllMatchupsThisWeek
         allMatchups={allMatchups}
-        week={typeof currentWeek === 'number' ? currentWeek : currentWeek ? parseInt(String(currentWeek)) : undefined}
+        week={typeof currentWeek === 'number' ? currentWeek : currentWeek ? parseInt(String(currentWeek)) : null}
         loading={matchupsLoading}
       />
 
@@ -210,11 +210,7 @@ export default function Matchup() {
 
       {/* Meta Footer */}
       <MetaSyncFooter
-        syncs={[
-          { domain: 'matchups', lastSyncAt, status: isStale ? 'stale' : 'fresh' },
-          { domain: 'standings', lastSyncAt: standingsLastSyncAt, status: 'fresh' },
-          { domain: 'roster', lastSyncAt: rosterLastSyncAt, status: 'fresh' },
-        ]}
+        lastSyncAt={lastSyncAt ? lastSyncAt.toISOString() : null}
       />
     </div>
   );

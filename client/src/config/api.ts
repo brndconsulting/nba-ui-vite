@@ -63,8 +63,8 @@ export const API_ENDPOINTS = {
     `${API_BASE}/v1/settings?league_key=${encodeURIComponent(leagueKey)}`,
 
   // Roster - Get roster for a team
-  roster: (teamKey: string) => 
-    `${API_BASE}/v1/roster?team_key=${encodeURIComponent(teamKey)}`,
+  roster: (leagueKey: string, teamKey: string) => 
+    `${API_BASE}/v1/roster?league_key=${encodeURIComponent(leagueKey)}&team_key=${encodeURIComponent(teamKey)}`,
 
   // Player Pool - Get free agents for a league
   playerPool: (leagueKey: string) => 
