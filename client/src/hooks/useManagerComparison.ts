@@ -41,20 +41,35 @@ export function useManagerComparison(
         const managersData = (await managersResponse.json()) as { data?: { managers?: Manager[] } };
         const managers = managersData.data?.managers || [];
 
-        // Fetch league teams to get logos
+        // Fetch league teams to get logos and match with standings
         const teamsUrl = API_ENDPOINTS.leagueTeams(leagueKey);
         const teamsResponse = await fetch(teamsUrl);
         const teamsData = (await teamsResponse.json()) as { data?: { teams?: Array<{ team_key: string; logo_url: string }> } };
         const teams = teamsData.data?.teams || [];
 
-        // Fetch matchups to get standings data
-        const matchupsUrl = API_ENDPOINTS.matchups(leagueKey, teamKey);
-        const matchupsResponse = await fetch(matchupsUrl);
-        const matchupsData = (await matchupsResponse.json()) as { data?: { standings?: Record<string, any> } };
-        const standings = matchupsData.data?.standings || {};
-
+        // Fetch standings data
+        const standingsUrl = API_ENDPOINTS.standings(leagueKey);
+        const standingsResponse = await fetch(standingsUrl);
+        const standingsData = (await standingsResponse.json()) as { data?: { teams?: Array<{ team_standings?: any }> } };
+        const standingsArray = standingsData.data?.teams || [];
+        
         // Create a map of team_key -> logo_url
         const logoMap = new Map(teams.map(t => [t.team_key, t.logo_url]));
+        
+        // Map standings by rank (index) to team_key
+        // The standings array is ordered by rank (1st place is index 0, 2nd place is index 1, etc.)
+        const standingsByTeamKey: Record<string, any> = {};
+        standingsArray.forEach((standingData: any, index: number) => {
+          if (standingData.team_standings && managers[index]) {
+            const managerAtIndex = managers[index];
+            standingsByTeamKey[managerAtIndex.team_key] = {
+              position: standingData.team_standings.rank,
+              wins: parseInt(standingData.team_standings.outcome_totals?.wins || '0'),
+              losses: parseInt(standingData.team_standings.outcome_totals?.losses || '0'),
+              ties: parseInt(standingData.team_standings.outcome_totals?.ties || '0'),
+            };
+          }
+        });
         
         if (!managers || managers.length === 0) {
           setError('No managers found in league');
@@ -65,7 +80,7 @@ export function useManagerComparison(
         // Find your manager
         const yourManager = managers.find((m: Manager) => m.team_key === teamKey);
         if (yourManager) {
-          const yourStandings = standings[yourManager.team_key] || {};
+          const yourStandings = standingsByTeamKey[yourManager.team_key] || {};
             setYou({
               nickname: yourManager.nickname,
               felo_score: yourManager.felo_score,
@@ -86,7 +101,7 @@ export function useManagerComparison(
         if (opponentTeamKey) {
           const opponentManager = managers.find((m: Manager) => m.team_key === opponentTeamKey);
           if (opponentManager) {
-            const opponentStandings = standings[opponentManager.team_key] || {};
+            const opponentStandings = standingsByTeamKey[opponentManager.team_key] || {};
             setOpponent({
               nickname: opponentManager.nickname,
               felo_score: opponentManager.felo_score,
