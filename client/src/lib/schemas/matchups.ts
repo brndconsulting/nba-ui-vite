@@ -19,22 +19,22 @@ export const statValueSchema = z.object({
   stat: z.object({
     stat_id: z.string(),
     value: z.union([z.string(), z.number()]),
-  }),
-});
+  }).passthrough(),
+}).passthrough();
 
 // ===== Team Stats Schema =====
 export const teamStatsSchema = z.object({
   coverage_type: z.string().optional(),
   week: z.string().optional(),
   stats: z.array(statValueSchema).optional(),
-});
+}).passthrough();
 
 // ===== Team Points Schema =====
 export const teamPointsSchema = z.object({
   coverage_type: z.string().optional(),
   week: z.string().optional(),
   total: z.union([z.string(), z.number()]).optional(),
-});
+}).passthrough();
 
 // ===== Team Remaining Games Schema =====
 export const teamRemainingGamesSchema = z.object({
@@ -44,8 +44,8 @@ export const teamRemainingGamesSchema = z.object({
     remaining_games: z.number(),
     live_games: z.number(),
     completed_games: z.number(),
-  }).optional(),
-});
+  }).passthrough().optional(),
+}).passthrough();
 
 // ===== Manager Schema =====
 export const managerSchema = z.object({
@@ -74,9 +74,9 @@ export const teamContainerSchema = z.object({
       team_stats: teamStatsSchema.optional(),
       team_points: teamPointsSchema.optional(),
       team_remaining_games: teamRemainingGamesSchema.optional(),
-    }),
+    }).passthrough(),
   ]),
-});
+}).passthrough();
 
 // ===== Teams Container Schema =====
 // { "0": {team: [...]}, "1": {team: [...]}, "count": 2 }
@@ -84,13 +84,13 @@ export const teamsContainerSchema = z.object({
   "0": teamContainerSchema.optional(),
   "1": teamContainerSchema.optional(),
   count: z.number(),
-});
+}).passthrough();
 
 // ===== Matchup Teams Wrapper =====
 // { teams: {...} }
 export const matchupTeamsWrapperSchema = z.object({
   teams: teamsContainerSchema,
-});
+}).passthrough();
 
 // ===== Stat Winner Schema =====
 export const statWinnerSchema = z.object({
@@ -98,8 +98,8 @@ export const statWinnerSchema = z.object({
     stat_id: z.string(),
     winner_team_key: z.string().optional(),
     is_tied: z.union([z.number(), z.string()]).optional(),
-  }),
-});
+  }).passthrough(),
+}).passthrough();
 // ===== Matchup Schema =====
 export const matchupSchema = z.object({
   week: z.union([z.number(), z.string()]),
@@ -112,7 +112,7 @@ export const matchupSchema = z.object({
   is_tied: z.union([z.number(), z.string()]).optional(),
   stat_winners: z.array(statWinnerSchema).optional(),
   "0": matchupTeamsWrapperSchema.optional(),
-});
+}).passthrough();
 
 // ===== Matchups Data Schema =====
 export const matchupsDataSchema = z.object({
