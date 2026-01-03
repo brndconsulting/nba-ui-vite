@@ -56,27 +56,28 @@ const getTierLabel = (tier: string) => {
 
 function ManagerCard({ 
   manager, 
-  position, 
+  align = 'left',
   isYou = false 
 }: { 
   manager?: Manager | null; 
-  position: 'left' | 'right';
+  align: 'left' | 'right';
   isYou?: boolean;
 }) {
   if (!manager) {
     return (
-      <div className={`flex flex-col items-center justify-center p-6 bg-background rounded-lg ${position === 'left' ? 'border-r border-border' : ''}`}>
+      <div className="flex flex-col items-center justify-center p-6 bg-background rounded-lg">
         <p className="text-sm text-muted-foreground">No data available</p>
       </div>
     );
   }
 
   const felo = typeof manager.felo_score === 'string' ? parseInt(manager.felo_score) : manager.felo_score;
+  const alignClass = align === 'left' ? 'items-end text-right' : 'items-start text-left';
 
   return (
-    <div className={`flex flex-col p-6 ${position === 'left' ? 'border-r border-border' : ''}`}>
+    <div className={`flex flex-col p-6 ${alignClass}`}>
       {/* Avatar + Team Name + YOU Badge */}
-      <div className="flex flex-col items-center mb-4">
+      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4`}>
         {manager.image_url && manager.image_url !== 'false' && (
           <img
             src={manager.image_url}
@@ -84,8 +85,8 @@ function ManagerCard({
             className="w-14 h-14 rounded-full mb-3 border-2 border-border"
           />
         )}
-        <div className="flex items-center gap-2 justify-center mb-1">
-          <h3 className="font-bold text-center text-base">{manager.team_name}</h3>
+        <div className={`flex ${align === 'left' ? 'flex-row-reverse' : 'flex-row'} items-center gap-2 justify-center mb-1`}>
+          <h3 className="font-bold text-base">{manager.team_name}</h3>
           {isYou && (
             <Badge variant="outline" className="text-xs">YOU</Badge>
           )}
@@ -93,8 +94,8 @@ function ManagerCard({
       </div>
 
       {/* Manager Name + Tier */}
-      <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
-        <p className="text-xs text-muted-foreground text-center">{manager.nickname}</p>
+      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
+        <p className="text-xs text-muted-foreground">{manager.nickname}</p>
         {manager.felo_tier && (
           <Badge className={`${getTierColor(manager.felo_tier)} mt-1 text-xs`}>
             {getTierLabel(manager.felo_tier)}
@@ -104,21 +105,21 @@ function ManagerCard({
 
       {/* Weekly Score - PROMINENT */}
       {manager.weekly_score !== undefined && (
-        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
           <span className="text-xs text-muted-foreground block mb-1">This Week</span>
           <span className="text-4xl font-bold text-foreground">{manager.weekly_score}</span>
         </div>
       )}
 
       {/* Felo Score (Rating) */}
-      <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
         <span className="text-xs text-muted-foreground mb-1">Season Rating</span>
         <span className="text-2xl font-bold text-foreground">{felo}</span>
       </div>
 
       {/* League Position */}
       {manager.position !== undefined && (
-        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
           <span className="text-xs text-muted-foreground block mb-1">Season Ranking</span>
           <span className="text-2xl font-bold text-foreground">#{manager.position}</span>
         </div>
@@ -126,7 +127,7 @@ function ManagerCard({
 
       {/* Season Record (W-L-T) */}
       {(manager.wins !== undefined || manager.losses !== undefined) && (
-        <div className="flex flex-col items-center mb-4 pb-4 border-b border-border">
+        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
           <span className="text-xs text-muted-foreground block mb-1">Season Record</span>
           <span className="text-lg font-semibold text-foreground">
             {manager.wins || 0}-{manager.losses || 0}
@@ -137,7 +138,7 @@ function ManagerCard({
 
       {/* Head-to-Head Record */}
       {(manager.h2h_wins !== undefined || manager.h2h_losses !== undefined) && (
-        <div className="flex flex-col items-center">
+        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} w-full`}>
           <span className="text-xs text-muted-foreground block mb-1">Head-to-Head</span>
           <span className="text-lg font-semibold text-foreground">
             {manager.h2h_wins || 0}-{manager.h2h_losses || 0}
@@ -197,9 +198,9 @@ export function ManagerComparison({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-border rounded-lg overflow-hidden">
-          <ManagerCard manager={you} position="left" isYou={true} />
-          <ManagerCard manager={opponent} position="right" isYou={false} />
+        <div className="grid grid-cols-2 gap-0 border border-border rounded-lg overflow-hidden">
+          <ManagerCard manager={you} align="right" isYou={true} />
+          <ManagerCard manager={opponent} align="left" isYou={false} />
         </div>
       </CardContent>
     </Card>
