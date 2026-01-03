@@ -13,6 +13,7 @@
  * 100% shadcn/ui components only
  */
 import { useAppContext } from '@/contexts/ContextProvider';
+import { useSearchParams } from 'wouter';
 import { useMatchups, useCapabilities } from '@/hooks/useMatchups';
 import { useLeagueManagers } from '@/hooks/useLeagueManagers';
 import { useRoster } from '@/hooks/useRoster';
@@ -73,8 +74,15 @@ function StaleDataAlert({
 
 export default function Matchup() {
   const { activeLeague, activeTeam } = useAppContext();
+  const [searchParams] = useSearchParams();
+  
+  // Get team_keys from URL params, fallback to context
+  const urlTeam1 = searchParams.get('team1');
+  const urlTeam2 = searchParams.get('team2');
+  
   const leagueKey = activeLeague?.league_key || '';
-  const teamKey = activeTeam?.team_key || '';
+  const teamKey = urlTeam1 || activeTeam?.team_key || '';
+  const opponentTeamKeyFromUrl = urlTeam2;
 
   // Fetch all required data
   const { 
@@ -112,8 +120,8 @@ export default function Matchup() {
 
   const { settings } = useSettings(leagueKey);
 
-  // Get opponent team key from matchup
-  const opponentTeamKey = matchup?.teams.find(t => t.team_key !== teamKey)?.team_key;
+  // Get opponent team key from URL or matchup
+  const opponentTeamKey = opponentTeamKeyFromUrl || matchup?.teams.find(t => t.team_key !== teamKey)?.team_key;
 
   // Fetch manager comparison data
   const {
