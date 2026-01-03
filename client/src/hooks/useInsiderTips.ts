@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
+import { useMatchups } from './useMatchups';
 
 interface Bullet {
   label?: string;
@@ -50,6 +51,9 @@ export const useInsiderTips = (
     generatedAt: null,
   });
 
+  // Use matchups hook to get locally generated insider data
+  const { matchup, loading: matchupsLoading } = useMatchups(leagueKey, teamKey);
+
   useEffect(() => {
     if (!leagueKey || !teamKey) {
       setState({
@@ -76,6 +80,31 @@ export const useInsiderTips = (
 
         // Check if insider data exists
         const insiderData = json.data?.insider;
+
+        // If backend doesn't provide insider data, use locally generated insights from matchup
+        if (!insiderData && matchup?.insider) {
+          const localCards: InsiderCardData[] = matchup.insider.map((card) => ({
+            id: card.category,
+            title: card.title,
+            status: 'ready',
+            summary: card.description,
+            impact: card.impact as 'low' | 'medium' | 'high',
+            bullets: card.action ? [{ text: card.action }] : undefined,
+            evidence: {
+              inputs: [{ domain: 'matchups', status: 'fresh' }],
+              notes: ['Generated locally from matchup data'],
+            },
+            limitations: [],
+          }));
+
+          setState({
+            data: localCards,
+            loading: false,
+            error: null,
+            generatedAt: new Date().toISOString(),
+          });
+          return;
+        }
 
         if (!insiderData) {
           // Backend hasn't implemented insider yet - show MissingState for all 4 cards
@@ -214,7 +243,7 @@ export const useInsiderTips = (
     };
 
     fetchInsiderTips();
-  }, [leagueKey, teamKey]);
+  }, [leagueKey, teamKey, matchup]);
 
   return state;
 };

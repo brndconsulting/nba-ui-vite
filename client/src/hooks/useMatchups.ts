@@ -16,6 +16,7 @@ import {
   type MatchupsData,
   type Matchup,
 } from '@/lib/schemas/matchups';
+import { InsiderService, type InsiderCard } from '@/services/insiderService';
 
 // Normalized team for UI consumption
 export interface NormalizedTeam {
@@ -42,12 +43,13 @@ export interface NormalizedMatchup {
   winner_team_key?: string | null;
   teams: NormalizedTeam[];
   stat_winners: Array<{ stat_id: string; winner_team_key: string | null; is_tied: boolean }>;
+  insider?: InsiderCard[];
 }
 
 /**
  * Normalize a matchup from Yahoo's weird format to a clean UI format
  */
-function normalizeMatchup(matchup: Matchup): NormalizedMatchup {
+function normalizeMatchup(matchup: Matchup, leagueKey?: string): NormalizedMatchup {
   const rawTeams = extractMatchupTeams(matchup);
   
   const teams: NormalizedTeam[] = rawTeams.map(t => ({
@@ -71,6 +73,30 @@ function normalizeMatchup(matchup: Matchup): NormalizedMatchup {
     is_tied: sw.stat_winner.is_tied === 1 || sw.stat_winner.is_tied === '1',
   })) || [];
 
+  // Generate insider insights if we have matchup data
+  let insider: InsiderCard[] | undefined;
+  if (leagueKey && teams.length >= 2) {
+    try {
+      const matchupDataForInsider = {
+        teams: teams.map(t => ({
+          team_key: t.team_key,
+          stats: t.stats.map(s => ({
+            stat_id: parseInt(s.stat_id),
+            value: s.value,
+          })),
+        })),
+      };
+      insider = InsiderService.generateInsights(
+        matchupDataForInsider,
+        leagueKey,
+        teams[0].team_key,
+        teams[1].team_key
+      );
+    } catch (err) {
+      console.warn('[normalizeMatchup] Failed to generate insider insights:', err);
+    }
+  }
+
   return {
     week: typeof matchup.week === 'string' ? parseInt(matchup.week) : matchup.week,
     week_start: matchup.week_start,
@@ -81,6 +107,7 @@ function normalizeMatchup(matchup: Matchup): NormalizedMatchup {
     is_tied: matchup.is_tied === 1 || matchup.is_tied === '1',
     teams,
     stat_winners,
+    insider,
   };
 }
 
@@ -154,14 +181,14 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
     const matchup = findTeamMatchup(rawData.matchups, teamKey);
     if (!matchup) return null;
     
-    return normalizeMatchup(matchup);
-  }, [rawData, teamKey]);
+    return normalizeMatchup(matchup, leagueKey);
+  }, [rawData, teamKey, leagueKey]);
 
   // Normalize all matchups
   const allMatchups = useMemo(() => {
     if (!rawData) return [];
-    return rawData.matchups.map(normalizeMatchup);
-  }, [rawData]);
+    return rawData.matchups.map(m => normalizeMatchup(m, leagueKey));
+  }, [rawData, leagueKey]);
 
   // Calculate if data is stale (more than 1 hour old)
   const isStale = useMemo(() => {
