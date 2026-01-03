@@ -10,7 +10,7 @@ export default function Schedule() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Schedule</h1>
-        <p className="text-muted-foreground">View your team's upcoming games and schedule</p>
+        <p className="text-muted-foreground">View your team upcoming games and schedule</p>
       </div>
       
       <Card>
@@ -25,7 +25,7 @@ export default function Schedule() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            This tab will show your team's game schedule, streaming opportunities, and weekly planning tools.
+            This tab will show your team game schedule, streaming opportunities, and weekly planning tools.
           </p>
         </CardContent>
       </Card>

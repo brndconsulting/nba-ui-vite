@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AlertCircle, Trophy, Calendar } from 'lucide-react';
-import type { NormalizedMatchup, NormalizedTeam } from '@/hooks/useMatchups';
+import type { NormalizedMatchup } from '@/hooks/useMatchups';
 
 interface StatCategory {
   stat_id: number;

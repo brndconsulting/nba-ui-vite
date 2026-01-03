@@ -20,7 +20,7 @@ interface ErrorStateProps {
   errors?: FormError[];
   error?: string;
   timestamp?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   onRetry?: () => void;
   compact?: boolean;
 }

@@ -9,6 +9,10 @@
 
 import { API_BASE } from '@/config/api';
 
+// Global fetch types
+type FetchRequestInit = globalThis.RequestInit;
+type FetchHeadersInit = globalThis.HeadersInit;
+
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
@@ -36,11 +40,11 @@ export function setOnUnauthorized(handler: () => void) {
  */
 export async function apiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: FetchRequestInit = {}
 ): Promise<ApiResponse<T>> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
   
-  const defaultHeaders: HeadersInit = {
+  const defaultHeaders: FetchHeadersInit = {
     'Content-Type': 'application/json',
   };
 

@@ -30,7 +30,7 @@ export function InsiderPanel({
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   // Función helper para interpolar params en copy keys
-  const interpolateText = (text: string, params: Record<string, any>): string => {
+  const interpolateText = (text: string, params: Record<string, unknown>): string => {
     let result = text;
     Object.entries(params).forEach(([key, value]) => {
       result = result.replace(`{{${key}}}`, String(value));
@@ -39,8 +39,9 @@ export function InsiderPanel({
   };
 
   // Función helper para obtener copy text
-  const getCopyText = (key: string, params: Record<string, any> = {}): string => {
+  const getCopyText = (key: string, params: Record<string, unknown> = {}): string => {
     const keys = key.split('.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any = copy;
     
     for (const k of keys) {
@@ -140,7 +141,7 @@ export function InsiderPanel({
                     size="sm"
                     onClick={() => {
                       // Aquí iría la navegación
-                      console.log('Action:', action.action);
+                      console.warn('Action:', action.action);
                     }}
                   >
                     {getCopyText(action.label_key)}

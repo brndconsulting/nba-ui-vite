@@ -3,14 +3,14 @@
  * 
  * Shadcn-only components:
  * - NavigationMenu for nav links
- * - ThemeControls for base/accent
+ * - ThemeSelector for color themes
  * - ModeToggle for light/dark
  * - Badge for sync status
  * - DropdownMenu for context/actions
  */
 
 import { useAppContext } from "@/contexts/ContextProvider";
-import { ThemeControls } from "./ThemeControls";
+import { ThemeSelector } from "./ThemeSelector";
 import { ModeToggle } from "./ModeToggle";
 import { ContextSelector } from "./ContextSelector";
 import { SyncStatusIndicator } from "./SyncStatusIndicator";
@@ -76,8 +76,8 @@ export function Header() {
           {/* Sync Status Indicator */}
           <SyncStatusIndicator />
 
-          {/* Theme Controls */}
-          <ThemeControls />
+          {/* Theme Selector (color themes) */}
+          <ThemeSelector />
 
           {/* Light/Dark Toggle */}
           <ModeToggle />

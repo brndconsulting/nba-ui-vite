@@ -1,4 +1,5 @@
 import * as React from "react";
+/* eslint-disable react/no-danger */
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils";

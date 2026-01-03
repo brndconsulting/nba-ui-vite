@@ -103,7 +103,7 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
         setError(null);
         
         const url = API_ENDPOINTS.matchups(leagueKey, teamKey);
-        console.log('[useMatchups] Fetching:', url);
+        console.warn('[useMatchups] Fetching:', url);
 
         const response = await fetch(url, {
           headers: {
@@ -116,11 +116,11 @@ export function useMatchups(leagueKey: string, teamKey?: string) {
         }
 
         const data = await response.json();
-        console.log('[useMatchups] Raw response:', data);
+        console.warn('[useMatchups] Raw response:', data);
 
         // Validate with Zod
         const validated = matchupsResponseSchema.parse(data);
-        console.log('[useMatchups] Validated:', validated);
+        console.warn('[useMatchups] Validated:', validated);
 
         if (validated.data) {
           setRawData(validated.data);
@@ -212,7 +212,7 @@ export function useCapabilities(leagueKey: string) {
       try {
         setLoading(true);
         const url = API_ENDPOINTS.settings(leagueKey);
-        console.log('[useCapabilities] Fetching:', url);
+        console.warn('[useCapabilities] Fetching:', url);
 
         const response = await fetch(url, {
           headers: {
@@ -225,7 +225,7 @@ export function useCapabilities(leagueKey: string) {
         }
 
         const data = await response.json();
-        console.log('[useCapabilities] Response:', data);
+        console.warn('[useCapabilities] Response:', data);
 
         // Handle envelope format
         const settings = data.data || data;

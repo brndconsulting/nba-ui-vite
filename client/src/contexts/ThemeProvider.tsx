@@ -1,107 +1,83 @@
 /**
- * Theme Provider - Manages base colors and accent themes
+ * Theme Provider - Manages light/dark mode
  * 
- * Separate from next-themes (which handles light/dark mode)
- * Applies classes to <html> and persists to localStorage
- * 
- * Storage contract:
- * - ui.base: "base-zinc" | "base-slate" | "base-stone" | "base-gray" | "base-neutral"
- * - ui.accent: "theme-default" | "theme-blue" | ... | "theme-yellow"
+ * Color themes are handled separately by ThemeSelector using data-theme attribute
  */
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { BASE_COLORS, ACCENT_THEMES, type BaseColor, type AccentTheme } from "@/config/themes";
+
+type Theme = "light" | "dark" | "system";
 
 interface ThemeContextType {
-  base: BaseColor;
-  accent: AccentTheme;
-  setBase: (_base: BaseColor) => void;
-  setAccent: (_accent: AccentTheme) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  resolvedTheme: "light" | "dark";
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const DEFAULT_BASE: BaseColor = "zinc";
-const DEFAULT_ACCENT: AccentTheme = "default";
+const STORAGE_KEY = "sport-insider-theme";
 
-function getStorageBase(): BaseColor {
-  if (typeof window === "undefined") return DEFAULT_BASE;
-  
-  const stored = localStorage.getItem("ui.base");
-  if (stored && BASE_COLORS.includes(stored as BaseColor)) {
-    return stored as BaseColor;
-  }
-  
-  // Fallback: reset to default
-  localStorage.setItem("ui.base", `base-${DEFAULT_BASE}`);
-  return DEFAULT_BASE;
+function getSystemTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function getStorageAccent(): AccentTheme {
-  if (typeof window === "undefined") return DEFAULT_ACCENT;
-  
-  const stored = localStorage.getItem("ui.accent");
-  if (stored && ACCENT_THEMES.includes(stored as AccentTheme)) {
-    return stored as AccentTheme;
+function getStoredTheme(): Theme {
+  if (typeof window === "undefined") return "system";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "light" || stored === "dark" || stored === "system") {
+    return stored;
   }
-  
-  // Fallback: reset to default
-  localStorage.setItem("ui.accent", `theme-${DEFAULT_ACCENT}`);
-  return DEFAULT_ACCENT;
-}
-
-function applyThemeClasses(base: BaseColor, accent: AccentTheme) {
-  if (typeof document === "undefined") return;
-  
-  const html = document.documentElement;
-  
-  // Remove all base-* classes
-  BASE_COLORS.forEach((b) => {
-    html.classList.remove(`base-${b}`);
-  });
-  
-  // Remove all theme-* classes
-  ACCENT_THEMES.forEach((a) => {
-    html.classList.remove(`theme-${a}`);
-  });
-  
-  // Apply current base (only if not default)
-  if (base !== DEFAULT_BASE) {
-    html.classList.add(`base-${base}`);
-  }
-  
-  // Apply current accent (only if not default)
-  if (accent !== DEFAULT_ACCENT) {
-    html.classList.add(`theme-${accent}`);
-  }
+  return "system";
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [base, setBaseState] = useState<BaseColor>(DEFAULT_BASE);
-  const [accent, setAccentState] = useState<AccentTheme>(DEFAULT_ACCENT);
+  const [theme, setThemeState] = useState<Theme>("system");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
+
+  // Apply theme to document
+  const applyTheme = (newTheme: Theme) => {
+    const resolved = newTheme === "system" ? getSystemTheme() : newTheme;
+    setResolvedTheme(resolved);
+    
+    if (resolved === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   // Hydrate from storage on mount
   useEffect(() => {
-    const storedBase = getStorageBase();
-    const storedAccent = getStorageAccent();
-    
-    setBaseState(storedBase);
-    setAccentState(storedAccent);
-    applyThemeClasses(storedBase, storedAccent);
+    const stored = getStoredTheme();
+    setThemeState(stored);
+    applyTheme(stored);
     setMounted(true);
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      if (theme === "system") {
+        applyTheme("system");
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const setBase = (newBase: BaseColor) => {
-    setBaseState(newBase);
-    localStorage.setItem("ui.base", `base-${newBase}`);
-    applyThemeClasses(newBase, accent);
-  };
+  // Re-apply when theme changes
+  useEffect(() => {
+    if (mounted) {
+      applyTheme(theme);
+    }
+  }, [theme, mounted]);
 
-  const setAccent = (newAccent: AccentTheme) => {
-    setAccentState(newAccent);
-    localStorage.setItem("ui.accent", `theme-${newAccent}`);
-    applyThemeClasses(base, newAccent);
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    localStorage.setItem(STORAGE_KEY, newTheme);
+    applyTheme(newTheme);
   };
 
   // Prevent hydration mismatch
@@ -110,7 +86,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ base, accent, setBase, setAccent }}>
+    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
       {children}
     </ThemeContext.Provider>
   );

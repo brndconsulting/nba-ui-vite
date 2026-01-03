@@ -28,6 +28,7 @@ import { MinimalHeader } from "@/components/layout/MinimalHeader";
 import { Footer } from "@/components/layout/Footer";
 import { useAppContext } from "@/contexts/ContextProvider";
 import { useLeagueTeams } from "@/hooks/useLeagueTeams";
+import { filterActiveLeagues } from "@/lib/league";
 
 export default function SelectPage() {
   const [, setLocation] = useLocation();
@@ -38,19 +39,9 @@ export default function SelectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { teams, loading: teamsLoading, error: teamsError } = useLeagueTeams(selectedLeagueKey || null);
-  // Filter leagues to show only active ones
-  // Priority: use is_finished if available (Yahoo's canonical flag)
-  // Fallback: use season-based heuristic when is_finished is null/undefined
-  const currentYear = new Date().getFullYear();
-  const seasonCutoff = currentYear - 1; // e.g., 2026 -> show 2025+
-  const allLeagues = context?.leagues || [];
-  const leagues = allLeagues.filter(league => {
-    // If is_finished is explicitly set, use it
-    if (league.is_finished === true) return false; // Finished = hide
-    if (league.is_finished === false) return true; // Active = show
-    // Fallback: is_finished is null/undefined, use season heuristic
-    return Number(league.season) >= seasonCutoff;
-  });
+  
+  // Filter to show only active leagues (is_finished === false)
+  const leagues = filterActiveLeagues(context?.leagues || []);
 
   useEffect(() => {
     setSelectedTeamKey("");

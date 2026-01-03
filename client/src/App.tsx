@@ -29,7 +29,6 @@ import Schedule from '@/pages/Schedule';
 import Analytics from '@/pages/Analytics';
 import Managers from '@/pages/Managers';
 import Settings from '@/pages/Settings';
-import ThemeMatrix from '@/pages/ThemeMatrix';
 
 /**
  * ContextGuard - Redirects to /select if context is missing in /app/* routes
@@ -98,9 +97,6 @@ function MainRouter() {
         
         {/* Dashboard Shell (all /app/* routes) */}
         <Route path="/app/:rest*" component={AppRouter} />
-        
-        {/* Theme matrix for development */}
-        <Route path="/__theme-matrix" component={ThemeMatrix} />
         
         {/* Legacy routes - redirect to new structure */}
         <Route path="/matchup">

@@ -19,8 +19,8 @@ import { useRoster } from '@/hooks/useRoster';
 import { useStandings } from '@/hooks/useStandings';
 import { useSettings } from '@/hooks/useSettings';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Clock, AlertCircle } from 'lucide-react';
-import { StaleState, ErrorState, MissingState } from '@/components/states';
+import { Clock } from 'lucide-react';
+import { ErrorState } from '@/components/states';
 import {
   ManagerVsManager,
   InsiderRecommendations,

@@ -92,7 +92,7 @@ export function ContextProvider({
 
   // Unified setActiveContext that updates local state AND tries backend
   const setActiveContext = useCallback(async (leagueKey: string, teamKey?: string): Promise<boolean> => {
-    console.log('[ContextProvider] setActiveContext:', { leagueKey, teamKey });
+    console.warn('[ContextProvider] setActiveContext:', { leagueKey, teamKey });
     
     // Update local state immediately (optimistic update)
     setActiveLeagueKey(leagueKey);

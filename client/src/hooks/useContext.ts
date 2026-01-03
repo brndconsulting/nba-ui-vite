@@ -61,26 +61,26 @@ export function useContext() {
 
   // Fetch context from API
   const fetchContext = useCallback(async () => {
-    console.log('[useContext] Starting fetch (owner-scoped backend)');
+    console.warn('[useContext] Starting fetch (owner-scoped backend)');
 
     try {
       setLoading(true);
       const url = API_ENDPOINTS.context();
-      console.log('[useContext] Fetching from:', url);
+      console.warn('[useContext] Fetching from:', url);
       
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      console.log('[useContext] Response status:', response.status);
+      console.warn('[useContext] Response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('[useContext] Raw data:', data);
+      console.warn('[useContext] Raw data:', data);
 
       // Handle both success envelope and direct data
       if (data.data) {
@@ -116,7 +116,7 @@ export function useContext() {
    * 3. If both fail, persist locally only
    */
   const setActiveContext = useCallback(async (leagueKey: string, teamKey?: string): Promise<boolean> => {
-    console.log('[useContext] Setting active context:', { leagueKey, teamKey });
+    console.warn('[useContext] Setting active context:', { leagueKey, teamKey });
     
     // Optimistic update - update local state immediately
     setContext(prev => {
@@ -134,7 +134,7 @@ export function useContext() {
     // Attempt #1: POST with JSON body
     try {
       const url = `${API_BASE}/v1/context/active`;
-      console.log('[useContext] Attempt #1 - POST with JSON body:', url);
+      console.warn('[useContext] Attempt #1 - POST with JSON body:', url);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -148,13 +148,13 @@ export function useContext() {
       });
 
       if (response.ok) {
-        console.log('[useContext] Attempt #1 succeeded');
+        console.warn('[useContext] Attempt #1 succeeded');
         persisted = true;
       } else {
-        console.log('[useContext] Attempt #1 failed:', response.status);
+        console.warn('[useContext] Attempt #1 failed:', response.status);
       }
     } catch (err) {
-      console.log('[useContext] Attempt #1 error:', err);
+      console.warn('[useContext] Attempt #1 error:', err);
     }
 
     // Attempt #2: POST with query params (fallback)
@@ -165,7 +165,7 @@ export function useContext() {
         if (teamKey) params.set('team_key', teamKey);
         
         const url = `${API_BASE}/v1/context/active?${params.toString()}`;
-        console.log('[useContext] Attempt #2 - POST with query params:', url);
+        console.warn('[useContext] Attempt #2 - POST with query params:', url);
         
         const response = await fetch(url, {
           method: 'POST',
@@ -175,13 +175,13 @@ export function useContext() {
         });
 
         if (response.ok) {
-          console.log('[useContext] Attempt #2 succeeded');
+          console.warn('[useContext] Attempt #2 succeeded');
           persisted = true;
         } else {
-          console.log('[useContext] Attempt #2 failed:', response.status);
+          console.warn('[useContext] Attempt #2 failed:', response.status);
         }
       } catch (err) {
-        console.log('[useContext] Attempt #2 error:', err);
+        console.warn('[useContext] Attempt #2 error:', err);
       }
     }
 

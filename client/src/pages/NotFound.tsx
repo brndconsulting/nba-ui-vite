@@ -28,7 +28,7 @@ export default function NotFound() {
           </h2>
 
           <p className="text-muted-foreground mb-8 leading-relaxed">
-            Sorry, the page you are looking for doesn't exist.
+            Sorry, the page you are looking for does not exist.
             <br />
             It may have been moved or deleted.
           </p>

@@ -5,6 +5,7 @@
  * - Botón: "Theme: [nombre]" con chevron
  * - Dropdown: lista limpia de nombres con checkmark en el seleccionado
  * 
+ * Usa data-theme en <html> para aplicar temas completos de shadcn
  * 100% shadcn/ui components
  */
 import { useEffect, useState } from "react";
@@ -17,15 +18,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Temas oficiales de shadcn/ui
 const THEMES = [
-  { name: "Blue", value: "" },
-  { name: "Green", value: "theme-green" },
-  { name: "Neutral", value: "theme-neutral" },
-  { name: "Orange", value: "theme-orange" },
-  { name: "Red", value: "theme-red" },
-  { name: "Rose", value: "theme-rose" },
-  { name: "Violet", value: "theme-violet" },
-  { name: "Yellow", value: "theme-yellow" },
+  { name: "Default", value: "" },
+  { name: "Blue", value: "blue" },
+  { name: "Green", value: "green" },
+  { name: "Orange", value: "orange" },
+  { name: "Red", value: "red" },
+  { name: "Rose", value: "rose" },
+  { name: "Violet", value: "violet" },
+  { name: "Yellow", value: "yellow" },
 ] as const;
 
 type ThemeValue = typeof THEMES[number]["value"];
@@ -38,25 +40,19 @@ export function ThemeSelector() {
   // Load theme from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeValue | null;
-    if (stored) {
+    if (stored && THEMES.some(t => t.value === stored)) {
       setTheme(stored);
       applyTheme(stored);
     }
   }, []);
 
   const applyTheme = (newTheme: ThemeValue) => {
-    const root = document.documentElement;
+    const html = document.documentElement;
     
-    // Remove all theme classes
-    THEMES.forEach(t => {
-      if (t.value) {
-        root.classList.remove(t.value);
-      }
-    });
-    
-    // Add new theme class if not default
     if (newTheme) {
-      root.classList.add(newTheme);
+      html.setAttribute("data-theme", newTheme);
+    } else {
+      html.removeAttribute("data-theme");
     }
   };
 
@@ -71,7 +67,7 @@ export function ThemeSelector() {
     }
   };
 
-  const currentThemeName = THEMES.find(t => t.value === theme)?.name || "Blue";
+  const currentThemeName = THEMES.find(t => t.value === theme)?.name || "Default";
 
   return (
     <DropdownMenu>

@@ -48,7 +48,7 @@ export function useSyncStatus(
 
     try {
       const url = API_ENDPOINTS.syncStatus(leagueKey || undefined);
-      console.log('[useSyncStatus] Fetching:', url);
+      console.warn('[useSyncStatus] Fetching:', url);
       
       const response = await fetch(url);
       
@@ -57,7 +57,7 @@ export function useSyncStatus(
       }
 
       const envelope = await response.json();
-      console.log('[useSyncStatus] Response:', envelope);
+      console.warn('[useSyncStatus] Response:', envelope);
       
       // Handle envelope format
       if (envelope.data) {

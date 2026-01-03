@@ -8,7 +8,7 @@ interface UseAPIResponseResult<T> {
   error: Array<{ code: string; message: string; field?: string }> | null
   isStale: boolean
   lastSyncAt: string | null
-  capabilities: any | null
+  capabilities: Record<string, unknown> | null
 }
 
 export function useAPIResponse<T extends z.ZodTypeAny>(
@@ -69,7 +69,7 @@ export function useAPIResponse<T extends z.ZodTypeAny>(
     fetchData()
 
     // Setup refetch interval if provided
-    let interval: NodeJS.Timeout | null = null
+    let interval: ReturnType<typeof setInterval> | null = null
     if (options?.refetchInterval) {
       interval = setInterval(fetchData, options.refetchInterval)
     }

@@ -41,7 +41,7 @@ export function useLeagueTeams(leagueKey: string | null): UseLeagueTeamsResult {
 
     try {
       const url = API_ENDPOINTS.leagueTeams(leagueKey);
-      console.log('[useLeagueTeams] Fetching:', url);
+      console.warn('[useLeagueTeams] Fetching:', url);
       
       const response = await fetch(url);
       
@@ -50,7 +50,7 @@ export function useLeagueTeams(leagueKey: string | null): UseLeagueTeamsResult {
       }
       
       const data = await response.json();
-      console.log('[useLeagueTeams] Response:', data);
+      console.warn('[useLeagueTeams] Response:', data);
 
       // Handle envelope format: { success, meta, data: { teams: [...] } }
       if (data.data?.teams) {

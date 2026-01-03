@@ -43,23 +43,23 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <MinimalHeader />
 
       {/* Main Content - fills remaining space, centered */}
-      <main className="flex flex-1 flex-col items-center justify-center px-4">
+      <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
         {/* Hero */}
-        <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold md:text-3xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
             Your Fantasy Sports Companion
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
+          <p className="mt-4 text-lg text-muted-foreground md:text-xl max-w-2xl">
             Analyze matchups, track stats, and dominate your league.
           </p>
           <Button 
             size="lg" 
-            className="mt-4"
+            className="mt-8"
             onClick={() => setLocation("/select")}
           >
             Enter App
@@ -67,17 +67,17 @@ export default function Landing() {
         </div>
 
         {/* Features Grid - 2x2 on desktop, 2x2 on mobile too */}
-        <div className="grid w-full max-w-xl gap-2 grid-cols-2">
+        <div className="grid w-full max-w-4xl gap-6 grid-cols-1 sm:grid-cols-2">
           {FEATURES.map((feature) => (
-            <Card key={feature.title} className="p-2">
-              <CardHeader className="p-0 pb-1">
-                <div className="flex items-center gap-1.5">
-                  <feature.icon className="h-3.5 w-3.5 text-muted-foreground" />
-                  <CardTitle className="text-xs font-medium">{feature.title}</CardTitle>
+            <Card key={feature.title}>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <feature.icon className="h-6 w-6 text-primary" />
+                  <CardTitle>{feature.title}</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <CardDescription className="text-xs leading-tight">
+              <CardContent>
+                <CardDescription className="text-base">
                   {feature.description}
                 </CardDescription>
               </CardContent>
