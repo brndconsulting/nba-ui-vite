@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export interface Manager {
   nickname: string;
@@ -18,6 +19,8 @@ export interface Manager {
   ties?: number;
   points_for?: number;
   points_against?: number;
+  games_played?: number;
+  total_games?: number;
   // Head-to-head record
   h2h_wins?: number;
   h2h_losses?: number;
@@ -54,98 +57,68 @@ const getTierLabel = (tier: string) => {
   return tier?.charAt(0).toUpperCase() + tier?.slice(1).toLowerCase();
 };
 
-function ManagerCard({ 
+const getRankingLabel = (position?: number) => {
+  if (!position) return '';
+  const suffix = position === 1 ? 'st' : position === 2 ? 'nd' : position === 3 ? 'rd' : 'th';
+  return `${position}${suffix}`;
+};
+
+function ManagerCardDesktop({ 
   manager, 
-  align = 'left',
+  side = 'left',
   isYou = false 
 }: { 
   manager?: Manager | null; 
-  align: 'left' | 'right';
+  side: 'left' | 'right';
   isYou?: boolean;
 }) {
-  if (!manager) {
-    return (
-      <div className="flex flex-col items-center justify-center p-6 bg-background rounded-lg">
-        <p className="text-sm text-muted-foreground">No data available</p>
-      </div>
-    );
-  }
+  if (!manager) return null;
 
-  const felo = typeof manager.felo_score === 'string' ? parseInt(manager.felo_score) : manager.felo_score;
-  const alignClass = align === 'left' ? 'items-end text-right' : 'items-start text-left';
+  const recordStr = `${manager.wins || 0}-${manager.losses || 0}${manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}`;
+  const rankingStr = getRankingLabel(manager.position);
 
   return (
-    <div className={`flex flex-col p-6 ${alignClass}`}>
-      {/* Avatar + Team Name + YOU Badge */}
-      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4`}>
-        {manager.image_url && manager.image_url !== 'false' && (
-          <img
-            src={manager.image_url}
-            alt={manager.nickname}
-            className="w-14 h-14 rounded-full mb-3 border-2 border-border"
-          />
-        )}
-        <div className={`flex ${align === 'left' ? 'flex-row-reverse' : 'flex-row'} items-center gap-2 justify-center mb-1`}>
-          <h3 className="font-bold text-base">{manager.team_name}</h3>
-          {isYou && (
-            <Badge variant="outline" className="text-xs">YOU</Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Manager Name + Tier */}
-      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
+    <div className={`flex ${side === 'left' ? 'flex-row' : 'flex-row-reverse'} items-center gap-3`}>
+      {manager.image_url && manager.image_url !== 'false' && (
+        <img
+          src={manager.image_url}
+          alt={manager.nickname}
+          className="w-12 h-12 rounded-full border-2 border-border flex-shrink-0"
+        />
+      )}
+      <div className={`flex flex-col ${side === 'left' ? 'text-left' : 'text-right'}`}>
+        <h3 className="text-lg font-bold text-blue-400">{manager.team_name}</h3>
         <p className="text-xs text-muted-foreground">{manager.nickname}</p>
-        {manager.felo_tier && (
-          <Badge className={`${getTierColor(manager.felo_tier)} mt-1 text-xs`}>
-            {getTierLabel(manager.felo_tier)}
-          </Badge>
-        )}
+        <p className="text-xs text-muted-foreground">{recordStr} | {rankingStr}</p>
       </div>
+    </div>
+  );
+}
 
-      {/* Weekly Score - PROMINENT */}
-      {manager.weekly_score !== undefined && (
-        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
-          <span className="text-xs text-muted-foreground block mb-1">This Week</span>
-          <span className="text-4xl font-bold text-foreground">{manager.weekly_score}</span>
-        </div>
+function ManagerCardMobile({ 
+  manager, 
+  isYou = false 
+}: { 
+  manager?: Manager | null; 
+  isYou?: boolean;
+}) {
+  if (!manager) return null;
+
+  const recordStr = `${manager.wins || 0}-${manager.losses || 0}${manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}`;
+  const rankingStr = getRankingLabel(manager.position);
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      {manager.image_url && manager.image_url !== 'false' && (
+        <img
+          src={manager.image_url}
+          alt={manager.nickname}
+          className="w-12 h-12 rounded-full border-2 border-border"
+        />
       )}
-
-      {/* Felo Score (Rating) */}
-      <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
-        <span className="text-xs text-muted-foreground mb-1">Season Rating</span>
-        <span className="text-2xl font-bold text-foreground">{felo}</span>
-      </div>
-
-      {/* League Position */}
-      {manager.position !== undefined && (
-        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
-          <span className="text-xs text-muted-foreground block mb-1">Season Ranking</span>
-          <span className="text-2xl font-bold text-foreground">#{manager.position}</span>
-        </div>
-      )}
-
-      {/* Season Record (W-L-T) */}
-      {(manager.wins !== undefined || manager.losses !== undefined) && (
-        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} mb-4 pb-4 border-b border-border w-full`}>
-          <span className="text-xs text-muted-foreground block mb-1">Season Record</span>
-          <span className="text-lg font-semibold text-foreground">
-            {manager.wins || 0}-{manager.losses || 0}
-            {manager.ties && manager.ties > 0 ? `-${manager.ties}` : ''}
-          </span>
-        </div>
-      )}
-
-      {/* Head-to-Head Record */}
-      {(manager.h2h_wins !== undefined || manager.h2h_losses !== undefined) && (
-        <div className={`flex flex-col ${align === 'left' ? 'items-end' : 'items-start'} w-full`}>
-          <span className="text-xs text-muted-foreground block mb-1">Head-to-Head</span>
-          <span className="text-lg font-semibold text-foreground">
-            {manager.h2h_wins || 0}-{manager.h2h_losses || 0}
-            {manager.h2h_ties && manager.h2h_ties > 0 ? `-${manager.h2h_ties}` : ''}
-          </span>
-        </div>
-      )}
+      <h3 className="text-sm font-bold text-blue-400 text-center">{manager.team_name}</h3>
+      <p className="text-xs text-muted-foreground text-center">{manager.nickname}</p>
+      <p className="text-xs text-muted-foreground text-center">{recordStr} | {rankingStr}</p>
     </div>
   );
 }
@@ -172,35 +145,102 @@ export function ManagerComparison({
     );
   }
 
-  // Calculate series score if both have weekly scores
   const youScore = you?.weekly_score || 0;
   const oppScore = opponent?.weekly_score || 0;
+  const youGames = you?.games_played || 0;
+  const youTotal = you?.total_games || 0;
+  const oppGames = opponent?.games_played || 0;
+  const oppTotal = opponent?.total_games || 0;
+
+  // Calculate progress percentages
+  const youProgress = youTotal > 0 ? (youGames / youTotal) * 100 : 0;
+  const oppProgress = oppTotal > 0 ? (oppGames / oppTotal) * 100 : 0;
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col gap-2">
-          <CardTitle className="text-lg">Manager Matchup</CardTitle>
+        <CardTitle className="text-lg">Manager Matchup</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Desktop Layout */}
+        <div className="hidden md:flex flex-col gap-4">
+          {/* Header Info */}
           {week && (
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <div className="flex justify-between items-center text-xs text-muted-foreground">
               <span>Week {week}</span>
-              {weekStart && weekEnd && (
-                <span>· {weekStart} – {weekEnd}</span>
-              )}
-              {youScore > 0 || oppScore > 0 && (
-                <span>· Series: {youScore} – {oppScore}</span>
-              )}
-              {lastSync && (
-                <span>· Last sync: {lastSync}</span>
-              )}
+              {weekStart && weekEnd && <span>{weekStart} – {weekEnd}</span>}
             </div>
           )}
+
+          {/* Main Matchup */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <ManagerCardDesktop manager={you} side="left" isYou={true} />
+            </div>
+
+            {/* Center: Scores and Button */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold">{youScore}</span>
+                <span className="text-muted-foreground">vs</span>
+                <span className="text-3xl font-bold">{oppScore}</span>
+              </div>
+              <Button variant="outline" size="sm" className="text-xs">
+                Compare Managers
+              </Button>
+            </div>
+
+            <div className="flex-1">
+              <ManagerCardDesktop manager={opponent} side="right" isYou={false} />
+            </div>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-0 border border-border rounded-lg overflow-hidden">
-          <ManagerCard manager={you} align="right" isYou={true} />
-          <ManagerCard manager={opponent} align="left" isYou={false} />
+
+        {/* Mobile Layout */}
+        <div className="md:hidden flex flex-col gap-4">
+          {/* Header */}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-muted-foreground text-xs mb-2">
+              <span>🏀</span>
+              <span>I LIVE FOR THIS NBA</span>
+            </div>
+            <Button variant="ghost" size="sm" className="text-blue-400 text-xs">
+              My Team →
+            </Button>
+          </div>
+
+          {/* Teams */}
+          <div className="flex justify-between gap-4">
+            <ManagerCardMobile manager={you} isYou={true} />
+            <ManagerCardMobile manager={opponent} isYou={false} />
+          </div>
+
+          {/* Scores */}
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col items-center">
+              <span className="text-3xl font-bold">{youScore}</span>
+              <span className="text-xs text-muted-foreground">{youGames}/{youTotal}</span>
+              <span className="text-xs text-muted-foreground">Games Played</span>
+            </div>
+            <span className="text-2xl text-muted-foreground">/</span>
+            <div className="flex flex-col items-center">
+              <span className="text-3xl font-bold">{oppScore}</span>
+              <span className="text-xs text-muted-foreground">{oppGames}/{oppTotal}</span>
+              <span className="text-xs text-muted-foreground">Games Played</span>
+            </div>
+          </div>
+
+          {/* Progress Bars */}
+          <div className="flex gap-2 h-2 rounded-full overflow-hidden bg-background border border-border">
+            <div 
+              className="bg-orange-500" 
+              style={{ width: `${youProgress}%` }}
+            />
+            <div 
+              className="bg-amber-900" 
+              style={{ width: `${oppProgress}%` }}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
