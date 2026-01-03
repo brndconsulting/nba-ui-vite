@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { useManagerComparison } from '@/hooks/useManagerComparison';
+import { MissingState } from '@/components/states';
 
 export interface Manager {
   nickname: string;
@@ -14,9 +15,9 @@ export interface Manager {
   team_name: string;
   team_key: string;
   position?: number;
-  wins?: number;
-  losses?: number;
-  ties?: number;
+  wins?: number | null;
+  losses?: number | null;
+  ties?: number | null;
   points_for?: number;
   points_against?: number;
   games_played?: number;
@@ -48,7 +49,7 @@ const getTierLabel = (tier: string) => {
 };
 
 const getRankingLabel = (position?: number) => {
-  if (!position) return '—';
+  if (position === undefined || position === null) return null;
   const suffix = position === 1 ? 'st' : position === 2 ? 'nd' : position === 3 ? 'rd' : 'th';
   return `#${position}${suffix}`;
 };
@@ -61,24 +62,53 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
+const RecordDisplay = ({ wins, losses, ties }: { wins?: number | null; losses?: number | null; ties?: number | null }) => {
+  if (wins === null || wins === undefined || losses === null || losses === undefined) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  
+  const record = `${wins}-${losses}${ties && ties > 0 ? `-${ties}` : ''}`;
+  return <span className="font-semibold text-foreground">{record}</span>;
+};
+
+const RatingDisplay = ({ score }: { score?: string | number }) => {
+  if (score === undefined || score === null) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  
+  const numScore = typeof score === 'string' ? parseInt(score) : score;
+  return <span className="font-semibold text-foreground">{numScore}</span>;
+};
+
+const RankingDisplay = ({ position }: { position?: number }) => {
+  const label = getRankingLabel(position);
+  if (!label) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  return <span className="font-semibold text-foreground">{label}</span>;
+};
+
+const TierDisplay = ({ tier }: { tier?: string }) => {
+  if (!tier) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  return (
+    <Badge variant={getTierVariant(tier)} className="text-xs">
+      {getTierLabel(tier)}
+    </Badge>
+  );
+};
+
 export function ManagerComparison({
   leagueKey,
   teamKey,
   opponentTeamKey,
 }: ManagerComparisonProps) {
-  const { managers, matchupData, loading, error } = useManagerComparison(
+  const { you, opponent, loading, error } = useManagerComparison(
     leagueKey,
     teamKey,
     opponentTeamKey
   );
-
-  // Debug logging
-  useEffect(() => {
-    console.log('ManagerComparison - managers:', managers);
-    console.log('ManagerComparison - matchupData:', matchupData);
-    console.log('ManagerComparison - loading:', loading);
-    console.log('ManagerComparison - error:', error);
-  }, [managers, matchupData, loading, error]);
 
   if (loading) {
     return (
@@ -103,193 +133,115 @@ export function ManagerComparison({
     );
   }
 
-  if (!managers || managers.length < 1) {
+  if (!you) {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">
-            <p>No managers found</p>
-          </div>
+          <MissingState reason="manager_data_not_available" />
         </CardContent>
       </Card>
     );
   }
 
-  const you = managers[0];
-  const opponent = managers[1];
-
-  const youScore = matchupData?.your_score || 0;
-  const oppScore = matchupData?.opponent_score || 0;
-  const youGames = matchupData?.your_games_played || 0;
-  const youTotal = matchupData?.your_total_games || 0;
-  const oppGames = matchupData?.opponent_games_played || 0;
-  const oppTotal = matchupData?.opponent_total_games || 0;
-
-  // Calculate progress percentage (0-100)
-  const totalGames = youTotal + oppTotal;
-  const youProgressPercent = totalGames > 0 ? (youGames / totalGames) * 100 : 50;
-
   return (
-    <Card className="overflow-hidden">
-      {/* TWO-COLUMN LAYOUT - Single card divided in half, NO STACKING */}
-      <CardContent className="p-0">
-        <div className="grid grid-cols-2 gap-0">
-          {/* LEFT COLUMN - Your Team */}
-          <div className="border-r p-6 space-y-4">
-            {/* Team Header */}
-            <div className="flex flex-col items-center gap-3">
-              <Avatar className="w-14 h-14">
-                <AvatarImage src={you?.image_url} alt={you?.team_name} />
-                <AvatarFallback>{getInitials(you?.team_name || 'Team')}</AvatarFallback>
-              </Avatar>
-              <div className="text-center">
-                <h3 className="font-bold text-base text-foreground">{you?.team_name || 'Your Team'}</h3>
-                <p className="text-xs text-muted-foreground">{you?.nickname || 'Manager'}</p>
-              </div>
-            </div>
-
-            {/* Weekly Score */}
-            <div className="text-center">
-              <div className="text-3xl font-bold text-foreground">{youScore}</div>
-              <p className="text-xs text-muted-foreground">Weekly Score</p>
-            </div>
-
-            {/* Games Played */}
-            <div className="text-center">
-              <div className="text-sm font-semibold text-foreground">
-                {youGames}/{youTotal}
-              </div>
-              <p className="text-xs text-muted-foreground">Games Played</p>
-            </div>
-
-            {/* Stats Grid - Tier, Rating, Ranking, Record (2x2) */}
-            <div className="grid grid-cols-2 gap-3 text-center">
-              {/* Tier */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Tier</p>
-                {you?.felo_tier && (
-                  <Badge variant={getTierVariant(you.felo_tier)} className="justify-center w-full text-xs">
-                    {getTierLabel(you.felo_tier)}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Rating */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Rating</p>
-                <span className="font-bold text-foreground text-sm block">
-                  {typeof you?.felo_score === 'string' ? parseInt(you.felo_score) : you?.felo_score || '—'}
-                </span>
-              </div>
-
-              {/* Ranking */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Ranking</p>
-                <span className="font-bold text-foreground text-sm block">
-                  {getRankingLabel(you?.position)}
-                </span>
-              </div>
-
-              {/* Record */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Record</p>
-                <span className="font-bold text-foreground text-sm block">
-                  {you?.wins || 0}-{you?.losses || 0}
-                  {you?.ties && you.ties > 0 ? `-${you.ties}` : ''}
-                </span>
-              </div>
+    <Card>
+      <CardContent className="p-6 space-y-6">
+        {/* A) HEADER: Identidad */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Owner */}
+          <div className="flex items-center gap-3 flex-1">
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={you?.image_url} alt={you?.team_name} />
+              <AvatarFallback>{getInitials(you?.team_name || 'Team')}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-bold text-foreground">{you?.team_name}</p>
+              <p className="text-sm text-muted-foreground">{you?.nickname}</p>
             </div>
           </div>
 
-          {/* RIGHT COLUMN - Opponent Team */}
+          {/* Center: Compare Button */}
+          <Button variant="outline" size="sm">
+            Compare Managers
+          </Button>
+
+          {/* Right: Opponent */}
           {opponent ? (
-            <div className="p-6 space-y-4">
-              {/* Team Header */}
-              <div className="flex flex-col items-center gap-3">
-                <Avatar className="w-14 h-14">
-                  <AvatarImage src={opponent?.image_url} alt={opponent?.team_name} />
-                  <AvatarFallback>{getInitials(opponent?.team_name || 'Team')}</AvatarFallback>
-                </Avatar>
-                <div className="text-center">
-                  <h3 className="font-bold text-base text-foreground">{opponent?.team_name || 'Opponent'}</h3>
-                  <p className="text-xs text-muted-foreground">{opponent?.nickname || 'Manager'}</p>
-                </div>
+            <div className="flex items-center gap-3 flex-1 justify-end">
+              <div className="text-right">
+                <p className="font-bold text-foreground">{opponent?.team_name}</p>
+                <p className="text-sm text-muted-foreground">{opponent?.nickname}</p>
               </div>
-
-              {/* Weekly Score */}
-              <div className="text-center">
-                <div className="text-3xl font-bold text-foreground">{oppScore}</div>
-                <p className="text-xs text-muted-foreground">Weekly Score</p>
-              </div>
-
-              {/* Games Played */}
-              <div className="text-center">
-                <div className="text-sm font-semibold text-foreground">
-                  {oppGames}/{oppTotal}
-                </div>
-                <p className="text-xs text-muted-foreground">Games Played</p>
-              </div>
-
-              {/* Stats Grid - Tier, Rating, Ranking, Record (2x2) */}
-              <div className="grid grid-cols-2 gap-3 text-center">
-                {/* Tier */}
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Tier</p>
-                  {opponent?.felo_tier && (
-                    <Badge variant={getTierVariant(opponent.felo_tier)} className="justify-center w-full text-xs">
-                      {getTierLabel(opponent.felo_tier)}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Rating */}
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                  <span className="font-bold text-foreground text-sm block">
-                    {typeof opponent?.felo_score === 'string'
-                      ? parseInt(opponent.felo_score)
-                      : opponent?.felo_score || '—'}
-                  </span>
-                </div>
-
-                {/* Ranking */}
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Ranking</p>
-                  <span className="font-bold text-foreground text-sm block">
-                    {getRankingLabel(opponent?.position)}
-                  </span>
-                </div>
-
-                {/* Record */}
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Record</p>
-                  <span className="font-bold text-foreground text-sm block">
-                    {opponent?.wins || 0}-{opponent?.losses || 0}
-                    {opponent?.ties && opponent.ties > 0 ? `-${opponent.ties}` : ''}
-                  </span>
-                </div>
-              </div>
+              <Avatar className="w-12 h-12">
+                <AvatarImage src={opponent?.image_url} alt={opponent?.team_name} />
+                <AvatarFallback>{getInitials(opponent?.team_name || 'Team')}</AvatarFallback>
+              </Avatar>
             </div>
           ) : (
-            <div className="p-6 flex items-center justify-center text-muted-foreground text-sm">
-              No opponent data
+            <div className="flex-1 text-right text-sm text-muted-foreground">
+              No opponent
             </div>
           )}
         </div>
 
-        {/* PROGRESS BAR - Full width at bottom */}
-        {totalGames > 0 && (
-          <>
-            <Separator />
-            <div className="px-6 py-4 space-y-2">
-              <Progress value={youProgressPercent} className="h-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{you?.team_name}</span>
-                <span>{opponent?.team_name || 'Opponent'}</span>
-              </div>
-            </div>
-          </>
-        )}
+        <Separator />
+
+        {/* B) WEEKLY SERIES */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-foreground">Weekly Series</h3>
+          <div className="text-center">
+            <p className="text-lg font-bold text-foreground">
+              {you?.team_name} vs {opponent?.team_name || 'Opponent'}
+            </p>
+            <p className="text-xs text-muted-foreground">Week data not yet available</p>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* C) SEASON METRICS - Tabla comparativa */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-foreground">Season Metrics</h3>
+          
+          <div className="grid grid-cols-4 gap-2 text-center text-xs">
+            {/* Header */}
+            <div className="font-semibold text-muted-foreground">Metric</div>
+            <div className="font-semibold text-muted-foreground">{you?.team_name}</div>
+            <div className="font-semibold text-muted-foreground">—</div>
+            <div className="font-semibold text-muted-foreground">{opponent?.team_name || 'Opponent'}</div>
+
+            {/* Tier */}
+            <div className="text-muted-foreground">Tier</div>
+            <div><TierDisplay tier={you?.felo_tier} /></div>
+            <div></div>
+            <div>{opponent ? <TierDisplay tier={opponent?.felo_tier} /> : <span className="text-xs text-muted-foreground">—</span>}</div>
+
+            {/* Rating */}
+            <div className="text-muted-foreground">Rating</div>
+            <div><RatingDisplay score={you?.felo_score} /></div>
+            <div></div>
+            <div>{opponent ? <RatingDisplay score={opponent?.felo_score} /> : <span className="text-xs text-muted-foreground">—</span>}</div>
+
+            {/* Ranking */}
+            <div className="text-muted-foreground">Ranking</div>
+            <div><RankingDisplay position={you?.position} /></div>
+            <div></div>
+            <div>{opponent ? <RankingDisplay position={opponent?.position} /> : <span className="text-xs text-muted-foreground">—</span>}</div>
+
+            {/* Record */}
+            <div className="text-muted-foreground">Record</div>
+            <div><RecordDisplay wins={you?.wins} losses={you?.losses} ties={you?.ties} /></div>
+            <div></div>
+            <div>{opponent ? <RecordDisplay wins={opponent?.wins} losses={opponent?.losses} ties={opponent?.ties} /> : <span className="text-xs text-muted-foreground">—</span>}</div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* E) FOOTER: Sync Status */}
+        <div className="text-xs text-muted-foreground">
+          <p>Last sync: managers 9:40 PM • standings 9:10 PM</p>
+        </div>
       </CardContent>
     </Card>
   );

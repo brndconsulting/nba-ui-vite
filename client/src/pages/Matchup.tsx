@@ -118,17 +118,13 @@ export default function Matchup() {
 
   // Fetch manager comparison data
   const {
-    you: managerYou,
-    opponent: managerOpponent,
+    you: _you,
+    opponent: _opponent,
     loading: managersComparisonLoading,
   } = useManagerComparison(leagueKey, teamKey, opponentTeamKey);
 
-  // Note: legacy managers data not used, using new useManagerComparison hook instead
-
   // Get stat categories from settings
   const statCategories = settings?.stat_categories || capabilities?.stat_categories || [];
-
-  // Note: Insider inputs validation moved to useInsiderTips hook
 
   // Build week actual data for RealVsProjection
   const weekActual = matchup ? {
@@ -161,9 +157,9 @@ export default function Matchup() {
 
       {/* 1. Manager vs Manager */}
       <ManagerComparison
-        you={managerYou}
-        opponent={managerOpponent}
-        loading={managersComparisonLoading}
+        leagueKey={leagueKey}
+        teamKey={teamKey}
+        opponentTeamKey={opponentTeamKey}
       />
 
       {/* 2. Insider Tips */}
@@ -172,48 +168,38 @@ export default function Matchup() {
       {/* 3. Real vs Projection */}
       <RealVsProjection
         weekActual={weekActual}
-        projection={null} // Backend doesn't provide projection
+        projection={null}
         loading={matchupsLoading}
         error={null}
         projectionAvailable={false}
-        projectionMissingReason="Projection not implemented by backend"
-        lastSyncAt={lastSyncAt?.toISOString() || null}
+        lastSyncAt={lastSyncAt}
       />
 
-      {/* 4. Week Matchup Card + Breakdown */}
-      <WeekMatchupCard
-        week={matchup?.week || 1}
-        youTeam={matchup?.teams.find(t => t.team_key === teamKey)?.name || 'Your Team'}
-        opponentTeam={matchup?.teams.find(t => t.team_key !== teamKey)?.name || 'Opponent'}
-        weekStart={matchup?.week_start}
-        weekEnd={matchup?.week_end}
-        categories={[]}
-        lastSyncAt={lastSyncAt?.toISOString()}
-        isLoading={matchupsLoading || capabilitiesLoading}
-        error={undefined}
-      />
+      {/* 4. Week Matchup Card */}
+      {matchup && currentWeek !== undefined && currentWeek !== null && (
+        <WeekMatchupCard
+          matchup={matchup}
+          week={typeof currentWeek === 'number' ? currentWeek : parseInt(String(currentWeek))}
+          teamKey={teamKey}
+          loading={matchupsLoading}
+        />
+      )}
 
       {/* 5. Player Alerts */}
       <PlayerAlerts
         players={rosterPlayers}
         loading={rosterLoading}
         error={rosterError}
-        lastSyncAt={rosterLastSyncAt}
       />
 
       {/* 6. All Matchups This Week */}
       <AllMatchupsThisWeek
-        matchups={allMatchups}
-        myTeamKey={teamKey}
-        week={typeof currentWeek === 'string' ? parseInt(currentWeek) : currentWeek ?? null}
+        allMatchups={allMatchups}
+        week={typeof currentWeek === 'number' ? currentWeek : currentWeek ? parseInt(String(currentWeek)) : undefined}
         loading={matchupsLoading}
-        error={null}
       />
 
-      {/* 7. H2H History (MissingState permanente V1.3) */}
-      <H2HHistory lastCheckedAt={new Date().toISOString()} />
-
-      {/* 8. Standings Snapshot */}
+      {/* 7. Standings Snapshot */}
       <StandingsSnapshot
         standings={standings}
         myTeamKey={teamKey}
@@ -222,22 +208,13 @@ export default function Matchup() {
         lastSyncAt={standingsLastSyncAt}
       />
 
-      {/* 9. Meta Sync Footer (data health) */}
+      {/* Meta Footer */}
       <MetaSyncFooter
-        syncStatus={{
-          overall_status: isStale ? 'stale' : 'fresh',
-          domains: {
-            matchups: {
-              status: isStale ? 'stale' : 'fresh',
-              last_sync_at: lastSyncAt?.toISOString() || null,
-            },
-            roster: {
-              status: rosterLastSyncAt ? 'fresh' : 'missing',
-              last_sync_at: rosterLastSyncAt || null,
-            },
-          },
-        }}
-        canSync={false}
+        syncs={[
+          { domain: 'matchups', lastSyncAt, status: isStale ? 'stale' : 'fresh' },
+          { domain: 'standings', lastSyncAt: standingsLastSyncAt, status: 'fresh' },
+          { domain: 'roster', lastSyncAt: rosterLastSyncAt, status: 'fresh' },
+        ]}
       />
     </div>
   );

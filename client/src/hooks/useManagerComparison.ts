@@ -58,15 +58,19 @@ export function useManagerComparison(
         
         // Map standings by rank (index) to team_key
         // The standings array is ordered by rank (1st place is index 0, 2nd place is index 1, etc.)
-        const standingsByTeamKey: Record<string, { position?: number; wins?: number; losses?: number; ties?: number; points_for?: number; points_against?: number }> = {};
+        const standingsByTeamKey: Record<string, { position?: number; wins?: number | null; losses?: number | null; ties?: number | null; points_for?: number; points_against?: number }> = {};
         standingsArray.forEach((standingData: { team_standings?: { rank?: number; outcome_totals?: { wins?: string; losses?: string; ties?: string } } }, index: number) => {
           if (standingData.team_standings && managers[index]) {
             const managerAtIndex = managers[index];
+            const winsStr = standingData.team_standings.outcome_totals?.wins;
+            const lossesStr = standingData.team_standings.outcome_totals?.losses;
+            const tiesStr = standingData.team_standings.outcome_totals?.ties;
+            
             standingsByTeamKey[managerAtIndex.team_key] = {
               position: standingData.team_standings.rank,
-              wins: parseInt(standingData.team_standings.outcome_totals?.wins || '0'),
-              losses: parseInt(standingData.team_standings.outcome_totals?.losses || '0'),
-              ties: parseInt(standingData.team_standings.outcome_totals?.ties || '0'),
+              wins: winsStr ? parseInt(winsStr) : null,
+              losses: lossesStr ? parseInt(lossesStr) : null,
+              ties: tiesStr ? parseInt(tiesStr) : null,
             };
           }
         });
@@ -81,20 +85,20 @@ export function useManagerComparison(
         const yourManager = managers.find((m: Manager) => m.team_key === teamKey);
         if (yourManager) {
           const yourStandings = standingsByTeamKey[yourManager.team_key] || {};
-            setYou({
-              nickname: yourManager.nickname,
-              felo_score: yourManager.felo_score,
-              felo_tier: yourManager.felo_tier,
-              image_url: logoMap.get(yourManager.team_key) || yourManager.image_url,
-              team_name: yourManager.team_name,
-              team_key: yourManager.team_key,
-              position: yourStandings.position,
-              wins: yourStandings.wins,
-              losses: yourStandings.losses,
-              ties: yourStandings.ties,
-              points_for: yourStandings.points_for,
-              points_against: yourStandings.points_against,
-            });
+          setYou({
+            nickname: yourManager.nickname,
+            felo_score: yourManager.felo_score,
+            felo_tier: yourManager.felo_tier,
+            image_url: logoMap.get(yourManager.team_key) || yourManager.image_url,
+            team_name: yourManager.team_name,
+            team_key: yourManager.team_key,
+            position: yourStandings.position,
+            wins: yourStandings.wins,
+            losses: yourStandings.losses,
+            ties: yourStandings.ties,
+            points_for: yourStandings.points_for,
+            points_against: yourStandings.points_against,
+          });
         }
 
         // Find opponent manager
