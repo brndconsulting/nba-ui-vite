@@ -10,7 +10,6 @@
  */
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useSearchParams } from "wouter";
 import { ChevronRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,15 +32,11 @@ import { filterActiveLeagues } from "@/lib/league";
 
 export default function SelectPage() {
   const [, setLocation] = useLocation();
-  const [searchParams] = useSearchParams();
   const { context, loading: contextLoading, error: contextError, setActiveContext } = useAppContext();
   
   const [selectedLeagueKey, setSelectedLeagueKey] = useState<string>("");
   const [selectedTeamKey, setSelectedTeamKey] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const urlTeam1 = searchParams.get('team1');
-  const urlTeam2 = searchParams.get('team2');
 
   const { teams, loading: teamsLoading, error: teamsError } = useLeagueTeams(selectedLeagueKey || null);
   
@@ -73,8 +68,7 @@ export default function SelectPage() {
     setIsSubmitting(true);
     try {
       await setActiveContext(selectedLeagueKey, selectedTeamKey);
-      const matchupUrl = `/app/matchup?team1=${selectedTeamKey}${urlTeam2 ? `&team2=${urlTeam2}` : ''}`;
-      setLocation(matchupUrl);
+      setLocation("/app/matchup");
     } catch (err) {
       console.error("Error setting context:", err);
     } finally {
