@@ -44,6 +44,7 @@ export function ThemeSelector() {
       setTheme(stored);
       applyTheme(stored);
     }
+    // Note: Neutral theme (empty string) is applied by default CSS
   }, []);
 
   const applyTheme = (newTheme: ThemeValue) => {
