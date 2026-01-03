@@ -78,12 +78,12 @@ export function HeaderSelectors() {
           onValueChange={handleTeamChange}
           disabled={teamsLoading}
         >
-          <SelectTrigger className="w-[160px] h-9">
+          <SelectTrigger className="w-[180px] h-9">
             {teamsLoading ? (
               <Skeleton className="h-4 w-20" />
             ) : (
               <SelectValue placeholder="Select team">
-                <span className="truncate block max-w-[120px]">
+                <span className="truncate block max-w-[140px]">
                   {activeTeam?.name || "Select team"}
                 </span>
               </SelectValue>
