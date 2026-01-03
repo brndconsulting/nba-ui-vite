@@ -24,7 +24,6 @@ import { Clock } from 'lucide-react';
 import { ErrorState } from '@/components/states';
 import {
   ManagerComparison,
-  InsiderRecommendations,
   RealVsProjection,
   WeekMatchupCard,
   PlayerAlerts,
@@ -33,6 +32,7 @@ import {
   H2HHistory,
   MetaSyncFooter,
 } from '@/components/dashboard';
+import { InsiderTipsSection } from '@/components/dashboard/InsiderTipsSection';
 
 function getTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -110,10 +110,7 @@ export default function Matchup() {
     lastSyncAt: standingsLastSyncAt,
   } = useStandings(leagueKey);
 
-  const {
-    settings,
-    loading: settingsLoading,
-  } = useSettings(leagueKey);
+  const { settings } = useSettings(leagueKey);
 
   // Get opponent team key from matchup
   const opponentTeamKey = matchup?.teams.find(t => t.team_key !== teamKey)?.team_key;
@@ -130,12 +127,7 @@ export default function Matchup() {
   // Get stat categories from settings
   const statCategories = settings?.stat_categories || capabilities?.stat_categories || [];
 
-  // Check if we have required inputs for Insider
-  const hasInsiderInputs = !!(settings && matchup && rosterPlayers.length > 0);
-  const missingInsiderInputs: string[] = [];
-  if (!settings) missingInsiderInputs.push('settings');
-  if (!matchup) missingInsiderInputs.push('matchups');
-  if (rosterPlayers.length === 0) missingInsiderInputs.push('roster');
+  // Note: Insider inputs validation moved to useInsiderTips hook
 
   // Build week actual data for RealVsProjection
   const weekActual = matchup ? {
@@ -173,14 +165,8 @@ export default function Matchup() {
         loading={managersComparisonLoading}
       />
 
-      {/* 2. Insider Recommendations */}
-      <InsiderRecommendations
-        tips={[]} // No tips yet - backend doesn't provide them
-        loading={matchupsLoading || settingsLoading || rosterLoading}
-        error={null}
-        hasRequiredInputs={hasInsiderInputs}
-        missingInputs={missingInsiderInputs}
-      />
+      {/* 2. Insider Tips */}
+      <InsiderTipsSection leagueKey={leagueKey} teamKey={teamKey} />
 
       {/* 3. Real vs Projection */}
       <RealVsProjection

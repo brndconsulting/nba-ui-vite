@@ -97,33 +97,18 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
         </div>
       )}
 
-      {/* Divider */}
-      <div className="h-px bg-border my-3" />
-
-      {/* Stats Grid */}
-      <div className="space-y-2 text-xs">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Tier</span>
-          <span className="font-semibold">{getTierLabel(manager.felo_tier)}</span>
+      {/* Trophies - when available */}
+      {manager.trophies && (
+        <div className="text-center text-xs mt-3">
+          <span className="text-muted-foreground">Trophies: </span>
+          <span className="font-semibold">
+            {manager.trophies.gold > 0 && `${manager.trophies.gold}🥇`}
+            {manager.trophies.silver > 0 && ` ${manager.trophies.silver}🥈`}
+            {manager.trophies.bronze > 0 && ` ${manager.trophies.bronze}🥉`}
+            {manager.trophies.gold === 0 && manager.trophies.silver === 0 && manager.trophies.bronze === 0 && '—'}
+          </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Felo Score</span>
-          <span className="font-semibold">{felo}</span>
-        </div>
-
-        {/* Trophies - when available */}
-        {manager.trophies && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Trophies</span>
-            <span className="font-semibold">
-              {manager.trophies.gold > 0 && `${manager.trophies.gold}🥇`}
-              {manager.trophies.silver > 0 && ` ${manager.trophies.silver}🥈`}
-              {manager.trophies.bronze > 0 && ` ${manager.trophies.bronze}🥉`}
-              {manager.trophies.gold === 0 && manager.trophies.silver === 0 && manager.trophies.bronze === 0 && '—'}
-            </span>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
