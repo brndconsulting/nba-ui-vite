@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/config/api';
 import { Manager } from '@/components/dashboard/ManagerComparison';
 
 interface UseManagerComparisonResult {
@@ -29,9 +30,8 @@ export function useManagerComparison(
         setLoading(true);
         setError(null);
 
-        const response = await fetch(
-          `/v1/league-managers?league_key=${leagueKey}`
-        );
+        const url = API_ENDPOINTS.leagueManagers(leagueKey);
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error('Failed to fetch league managers');
@@ -39,6 +39,12 @@ export function useManagerComparison(
 
         const data = (await response.json()) as { data?: { managers?: Manager[] } };
         const managers = data.data?.managers || [];
+        
+        if (!managers || managers.length === 0) {
+          setError('No managers found in league');
+          setLoading(false);
+          return;
+        }
 
         // Find your manager
         const yourManager = managers.find((m: Manager) => m.team_key === teamKey);

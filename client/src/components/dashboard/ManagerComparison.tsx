@@ -82,9 +82,9 @@ function ManagerCard({ manager, position }: { manager?: Manager | null; position
       </div>
 
       {/* Felo Score */}
-      <div className="flex justify-center items-center gap-2 mb-4">
-        <span className="text-2xl font-bold text-foreground">{felo}</span>
-        <span className="text-xs text-muted-foreground">Felo</span>
+      <div className="flex flex-col items-center mb-4">
+        <span className="text-xs text-muted-foreground mb-1">Rating</span>
+        <span className="text-3xl font-bold text-foreground">{felo}</span>
       </div>
 
       {/* Commissioner Badge */}
