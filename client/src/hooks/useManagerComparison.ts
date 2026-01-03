@@ -58,8 +58,8 @@ export function useManagerComparison(
         
         // Map standings by rank (index) to team_key
         // The standings array is ordered by rank (1st place is index 0, 2nd place is index 1, etc.)
-        const standingsByTeamKey: Record<string, any> = {};
-        standingsArray.forEach((standingData: any, index: number) => {
+        const standingsByTeamKey: Record<string, { position?: number; wins?: number; losses?: number; ties?: number; points_for?: number; points_against?: number }> = {};
+        standingsArray.forEach((standingData: { team_standings?: { rank?: number; outcome_totals?: { wins?: string; losses?: string; ties?: string } } }, index: number) => {
           if (standingData.team_standings && managers[index]) {
             const managerAtIndex = managers[index];
             standingsByTeamKey[managerAtIndex.team_key] = {

@@ -52,7 +52,7 @@ export const useInsiderTips = (
   });
 
   // Use matchups hook to get locally generated insider data
-  const { matchup, loading: matchupsLoading } = useMatchups(leagueKey, teamKey);
+  const { matchup } = useMatchups(leagueKey, teamKey);
 
   useEffect(() => {
     if (!leagueKey || !teamKey) {

@@ -27,7 +27,7 @@ export class InsiderService {
    */
   static generateInsights(
     matchupData: MatchupData,
-    leagueKey: string,
+    _leagueKey: string,
     youTeamKey: string,
     opponentTeamKey: string
   ): InsiderCard[] {
@@ -67,7 +67,7 @@ export class InsiderService {
   private static calculateMatchupEdge(
     matchupData: MatchupData,
     youTeamKey: string,
-    opponentTeamKey: string
+    _opponentTeamKey: string
   ): InsiderCard | null {
     if (!matchupData.teams || matchupData.teams.length < 2) return null;
 
@@ -124,8 +124,8 @@ export class InsiderService {
 
   private static calculateStreamingEdge(
     matchupData: MatchupData,
-    youTeamKey: string,
-    opponentTeamKey: string
+    _youTeamKey: string,
+    _opponentTeamKey: string
   ): InsiderCard | null {
     // Simplified: check if you have more games than opponent
     if (!matchupData.teams || matchupData.teams.length < 2) return null;
@@ -143,8 +143,8 @@ export class InsiderService {
   }
 
   private static calculateRiskWatch(
-    matchupData: MatchupData,
-    youTeamKey: string
+    _matchupData: MatchupData,
+    _youTeamKey: string
   ): InsiderCard | null {
     // Simplified: generic risk watch
     return {
@@ -160,7 +160,7 @@ export class InsiderService {
   private static calculateCategorySwing(
     matchupData: MatchupData,
     youTeamKey: string,
-    opponentTeamKey: string
+    _opponentTeamKey: string
   ): InsiderCard | null {
     if (!matchupData.teams || matchupData.teams.length < 2) return null;
 
