@@ -3,6 +3,6 @@ builder = "nixpacks"
 buildCommand = "rm -rf dist && pnpm install --frozen-lockfile && pnpm build"
 
 [deploy]
-startCommand = "pnpm dlx serve -s dist/public -l $PORT --no-cache"
+startCommand = "pnpm dlx serve -s dist/public -l $PORT"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 5
