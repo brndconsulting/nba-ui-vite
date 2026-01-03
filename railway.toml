@@ -3,6 +3,6 @@ builder = "nixpacks"
 buildCommand = "pnpm install && pnpm build"
 
 [deploy]
-startCommand = "pnpm start"
+startCommand = "pnpm dlx serve -s dist/public -l $PORT --no-cache"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 5
