@@ -39,19 +39,19 @@ export function useManagerComparison(
         }
 
         const managersData = (await managersResponse.json()) as { data?: { managers?: Manager[] } };
-        const managers = managersData.data?.managers || [];
+        const managers = (managersData?.data?.managers) || [];
 
         // Fetch league teams to get logos and match with standings
         const teamsUrl = API_ENDPOINTS.leagueTeams(leagueKey);
         const teamsResponse = await fetch(teamsUrl);
         const teamsData = (await teamsResponse.json()) as { data?: { teams?: Array<{ team_key: string; logo_url: string }> } };
-        const teams = teamsData.data?.teams || [];
+        const teams = (teamsData?.data?.teams) || [];
 
         // Fetch standings data
         const standingsUrl = API_ENDPOINTS.standings(leagueKey);
         const standingsResponse = await fetch(standingsUrl);
         const standingsData = (await standingsResponse.json()) as { data?: { teams?: Array<{ team_standings?: any }> } };
-        const standingsArray = standingsData.data?.teams || [];
+        const standingsArray = (standingsData?.data?.teams) || [];
         
         // Create a map of team_key -> logo_url
         const logoMap = new Map(teams.map(t => [t.team_key, t.logo_url]));
@@ -60,7 +60,7 @@ export function useManagerComparison(
         // The standings array is ordered by rank (1st place is index 0, 2nd place is index 1, etc.)
         const standingsByTeamKey: Record<string, { position?: number; wins?: number | null; losses?: number | null; ties?: number | null; points_for?: number; points_against?: number }> = {};
         standingsArray.forEach((standingData: { team_standings?: { rank?: number; outcome_totals?: { wins?: string; losses?: string; ties?: string } } }, index: number) => {
-          if (standingData.team_standings && managers[index]) {
+          if (standingData?.team_standings && Array.isArray(managers) && managers[index]) {
             const managerAtIndex = managers[index];
             const winsStr = standingData.team_standings.outcome_totals?.wins;
             const lossesStr = standingData.team_standings.outcome_totals?.losses;
@@ -75,7 +75,7 @@ export function useManagerComparison(
           }
         });
         
-        if (!managers || managers.length === 0) {
+        if (!Array.isArray(managers) || managers.length === 0) {
           setError('No managers found in league');
           setLoading(false);
           return;
